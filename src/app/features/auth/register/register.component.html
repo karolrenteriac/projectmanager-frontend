@@ -1,0 +1,167 @@
+<div class="register-page">
+
+  <!-- ═══════════════════════════════ LEFT PANEL ═══════════════════════════ -->
+  <div class="hero-panel" aria-hidden="true">
+    <div class="hero-content">
+
+      <!-- Logo mark -->
+      <div class="logo-mark">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="12" fill="rgba(255,255,255,0.15)"/>
+          <path d="M12 20L18 26L28 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <h1 class="hero-title">Start your<br><span class="hero-title-accent">journey</span></h1>
+      <p class="hero-subtitle">
+        Join thousands of teams already using ProjectManager to ship better products, faster.
+      </p>
+
+      <!-- Feature pills -->
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon">✦</span>
+          <span>Set up in seconds</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">✦</span>
+          <span>Invite your whole team</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">✦</span>
+          <span>Unlimited projects</span>
+        </div>
+      </div>
+
+      <!-- Decorative blobs -->
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ RIGHT PANEL ══════════════════════════ -->
+  <div class="form-panel">
+    <div class="form-container fade-in">
+
+      <!-- Card -->
+      <div class="register-card">
+
+        <!-- Header -->
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 8V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 11H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="card-title">Create account</h2>
+          <p class="card-subtitle">Set up your workspace and get started</p>
+        </div>
+
+        @if (invitationToken) {
+          <div class="invitation-banner">
+            <mat-icon class="banner-icon">mail_outline</mat-icon>
+            <span>You are registering as an invited user</span>
+          </div>
+        }
+
+        <!-- Form -->
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" novalidate>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Full Name</mat-label>
+            <input matInput formControlName="name" placeholder="Jane Doe" autocomplete="name" />
+            <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
+            @if (registerForm.get('name')?.touched && registerForm.get('name')?.hasError('required')) {
+              <mat-error>Name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email address</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="you@company.com" autocomplete="email" />
+            <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
+            @if (registerForm.get('email')?.touched) {
+              @if (registerForm.get('email')?.hasError('required')) {
+                <mat-error>Email is required</mat-error>
+              } @else if (registerForm.get('email')?.hasError('email')) {
+                <mat-error>Valid email is required</mat-error>
+              }
+            }
+          </mat-form-field>
+
+          <!-- Conditionally show company name -->
+          @if (!invitationToken) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Company Name</mat-label>
+              <input matInput formControlName="companyName" placeholder="Acme Inc." />
+              <mat-icon matPrefix class="field-icon">business</mat-icon>
+              @if (registerForm.get('companyName')?.touched && registerForm.get('companyName')?.hasError('required')) {
+                <mat-error>Company name is required</mat-error>
+              }
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" autocomplete="new-password" />
+            <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
+            <button type="button" mat-icon-button matSuffix (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" class="toggle-password-btn">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (registerForm.get('password')?.touched) {
+              @if (registerForm.get('password')?.hasError('required')) {
+                <mat-error>Password is required</mat-error>
+              } @else if (registerForm.get('password')?.hasError('minlength')) {
+                <mat-error>Minimum 8 characters</mat-error>
+              }
+            }
+          </mat-form-field>
+
+          <!-- Error alert -->
+          @if (errorMessage) {
+            <div class="error-alert" role="alert">
+              <mat-icon class="error-icon">error_outline</mat-icon>
+              <span>{{ errorMessage }}</span>
+            </div>
+          }
+
+          <!-- Success alert -->
+          @if (successMessage) {
+            <div class="success-alert" role="alert">
+              <mat-icon class="success-icon">check_circle_outline</mat-icon>
+              <span>{{ successMessage }}</span>
+            </div>
+          }
+
+          <!-- Submit -->
+          <button mat-flat-button type="submit" class="submit-btn full-width" [disabled]="registerForm.invalid || isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+              <span>Creating account…</span>
+            } @else {
+              <span>Create Account</span>
+            }
+          </button>
+
+        </form>
+
+        <!-- Footer -->
+        <div class="card-footer">
+          <span>Already have an account?</span>
+          <a routerLink="/auth/login" class="register-link">Sign in</a>
+        </div>
+
+      </div><!-- /register-card -->
+
+      <p class="legal-note">
+        By registering you agree to our <br>
+        <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </p>
+
+    </div><!-- /form-container -->
+  </div><!-- /form-panel -->
+
+</div>
