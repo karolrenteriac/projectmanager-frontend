@@ -1,0 +1,50 @@
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.chart-card {
+  border-radius: var(--border-radius-lg, 16px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+}
+
+mat-card-header {
+  padding: 1.25rem 1.25rem 0.75rem;
+}
+
+mat-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+mat-card-subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.chart-content {
+  padding: 0.5rem 1.25rem 1.25rem;
+  height: 300px;
+  position: relative;
+}
+
+.chart-row-split {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .chart-row-split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.donut-content {
+  height: 250px;
+}

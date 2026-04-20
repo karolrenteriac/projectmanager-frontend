@@ -1,0 +1,41 @@
+<div class="stats-grid">
+  <div *ngFor="let stat of stats" 
+       class="stat-card" 
+       (click)="navigateTo(stat.route)"
+       [matTooltip]="stat.tooltip"
+       [matTooltipPosition]="'above'">
+    
+    <div class="stat-body">
+      <div class="stat-info">
+        <span class="stat-label">{{ stat.title }}</span>
+        <div class="stat-value">{{ stat.value }}</div>
+      </div>
+      <div class="icon-container" [style.color]="stat.color" [style.background-color]="stat.color + '20'">
+        <mat-icon>{{ stat.icon }}</mat-icon>
+      </div>
+    </div>
+
+    <div class="stat-middle">
+      <div class="sparkline-container">
+        <svg width="100%" height="30" viewBox="0 0 100 30" preserveAspectRatio="none">
+          <polyline
+            fill="none"
+            [attr.stroke]="stat.color"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            [attr.points]="getSparklinePoints(stat.sparkline)"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div class="stat-footer">
+      <div class="trend-container" [ngClass]="stat.trendPositive ? 'trend-up' : 'trend-down'">
+        <mat-icon class="trend-icon">{{ stat.trendPositive ? 'trending_up' : 'trending_down' }}</mat-icon>
+        <span class="trend-value">{{ stat.trend }}</span>
+      </div>
+      <span class="subtitle-text">{{ stat.subtitle }}</span>
+    </div>
+  </div>
+</div>

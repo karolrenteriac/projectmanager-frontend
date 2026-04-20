@@ -1,0 +1,31 @@
+<mat-card class="notifications-card">
+  <mat-card-header>
+    <mat-card-title>Notifications</mat-card-title>
+    <span class="spacer"></span>
+    <button mat-icon-button>
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </mat-card-header>
+
+  <mat-card-content class="notifications-content">
+    <!-- List of notifications -->
+    <mat-list *ngIf="notifications.length > 0">
+      <mat-list-item *ngFor="let n of notifications" class="notification-item">
+        <div matListItemIcon class="icon-box">
+          <mat-icon [ngClass]="n.color">{{ n.icon }}</mat-icon>
+        </div>
+        <div matListItemTitle class="note-message">{{ n.message }}</div>
+      </mat-list-item>
+    </mat-list>
+    
+    <!-- Empty state -->
+    <div *ngIf="notifications.length === 0" class="empty-state">
+      <mat-icon>notifications_none</mat-icon>
+      <p>No notifications yet</p>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="end" *ngIf="notifications.length > 0">
+    <button mat-button color="primary">View All Activities</button>
+  </mat-card-actions>
+</mat-card>

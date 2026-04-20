@@ -1,0 +1,73 @@
+.create-project-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 64px);
+}
+
+.create-project-card {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+}
+
+mat-card-header {
+  margin-bottom: 2rem;
+}
+
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+button[color="primary"] {
+  background-color: #6366f1; /* Indigo */
+  min-width: 140px;
+}
+
+button[color="primary"] mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Custom indigo theme colors for the form */
+::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: #6366f1 !important;
+}
+
+::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-label {
+  color: #6366f1 !important;
+}

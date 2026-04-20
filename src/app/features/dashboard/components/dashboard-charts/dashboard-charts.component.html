@@ -1,0 +1,45 @@
+<div class="charts-container">
+
+  <!-- LINE CHART -->
+  <div class="chart-row-full">
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Project & Task Progress</mat-card-title>
+        <mat-card-subtitle>Overall performance over time</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content class="chart-content">
+        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'">
+        </canvas>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- DONUT + BAR -->
+  <div class="chart-row-split">
+
+    <mat-card class="chart-card split-card">
+      <mat-card-header>
+        <mat-card-title>Task Distribution</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content class="chart-content donut-content">
+        <canvas baseChart [data]="donutChartData" [options]="donutChartOptions" [type]="'doughnut'">
+        </canvas>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card split-card">
+      <mat-card-header>
+        <mat-card-title>User Activity</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content class="chart-content">
+        <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
+        </canvas>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+</div>

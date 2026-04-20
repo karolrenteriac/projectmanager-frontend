@@ -1,0 +1,125 @@
+.notifications-card {
+  border-radius: var(--border-radius-lg, 16px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-card-header {
+  padding: 1rem 1rem 0.5rem;
+}
+
+mat-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.notifications-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0.5rem;
+  max-height: 400px; /* Limit height for scrollability */
+}
+
+.notification-item {
+  margin-bottom: 0.5rem;
+  padding: 12px 0;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background-color: #f8fafc;
+}
+
+.icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+}
+
+.icon-box mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.note-title {
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  color: #334155;
+}
+
+.note-desc {
+  font-size: 0.85rem !important;
+  color: #64748b !important;
+  margin-top: 2px;
+}
+
+.note-time {
+  font-size: 0.75rem !important;
+  color: #94a3b8 !important;
+  margin-top: 4px;
+}
+
+mat-card-actions {
+  border-top: 1px solid #f1f5f9;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Custom Scrollbar */
+.notifications-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notifications-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.notifications-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.blue { color: #3b82f6; }
+.red { color: #ef4444; }
+.orange { color: #f97316; }
+.green { color: #22c55e; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.note-message {
+  font-size: 0.9rem;
+  color: #334155;
+  font-weight: 500;
+}
+

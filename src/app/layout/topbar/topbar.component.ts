@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
+import { Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-topbar',
@@ -27,12 +29,12 @@ import { ThemeService } from '../../core/services/theme.service';
       
       <span class="spacer"></span>
       
-      <button mat-icon-button (click)="themeService.toggleTheme()" aria-label="Toggle Theme">
+      <button mat-icon-button (click)="themeService.toggleTheme()" aria-label="Toggle Theme" class="nav-button">
         <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
       
-      <button mat-icon-button aria-label="Notifications">
-        <mat-icon matBadge="3" matBadgeColor="warn">notifications</mat-icon>
+      <button mat-icon-button aria-label="Notifications" (click)="goToNotifications()" class="nav-button notification-btn">
+        <mat-icon [matBadge]="notificationCount > 0 ? notificationCount : null" matBadgeColor="warn">notifications</mat-icon>
       </button>
 
       <button mat-icon-button class="avatar-btn">
@@ -86,6 +88,16 @@ import { ThemeService } from '../../core/services/theme.service';
     .search-input::placeholder {
       color: var(--mat-sys-on-surface-variant);
     }
+    .nav-button {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-button:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+      transform: scale(1.1);
+    }
+    .notification-btn:hover mat-icon {
+      color: #6366f1;
+    }
     .avatar-btn {
       margin-left: 8px;
     }
@@ -94,6 +106,11 @@ import { ThemeService } from '../../core/services/theme.service';
       height: 32px;
       border-radius: 50%;
       object-fit: cover;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .avatar-btn:hover .avatar {
+      border-color: #6366f1;
     }
     @media (max-width: 599px) {
       .search-container {
@@ -102,7 +119,31 @@ import { ThemeService } from '../../core/services/theme.service';
     }
   `]
 })
-export class TopbarComponent {
+export class TopbarComponent implements OnInit {
   @Output() toggleSidenav = new EventEmitter<void>();
+  
   themeService = inject(ThemeService);
+  private router = inject(Router);
+  private dashboardService = inject(DashboardService);
+
+  notificationCount = 0;
+
+  ngOnInit(): void {
+    this.loadNotificationCount();
+  }
+
+  loadNotificationCount(): void {
+    this.dashboardService.getNotifications().subscribe({
+      next: (data) => {
+        this.notificationCount = data?.length || 0;
+      },
+      error: () => {
+        this.notificationCount = 0;
+      }
+    });
+  }
+
+  goToNotifications(): void {
+    this.router.navigate(['/dashboard/notifications']);
+  }
 }
