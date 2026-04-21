@@ -89,8 +89,8 @@ export class CreateProjectComponent implements OnInit {
       objectives: rawValue.objectives || '',
       startDate: rawValue.startDate ? new Date(rawValue.startDate).toISOString() : null,
       endDate: rawValue.endDate ? new Date(rawValue.endDate).toISOString() : null,
-      // CRITICAL: Ensure members is always an array of IDs (strings)
-      members: Array.isArray(rawValue.members) ? rawValue.members : []
+      // CRITICAL: Ensure members is always an array of string IDs
+      members: (Array.isArray(rawValue.members) ? rawValue.members : []).map((m: any) => String(m))
     };
 
     console.log("Sending project data:", projectData);

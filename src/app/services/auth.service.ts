@@ -24,6 +24,9 @@ export class AuthService {
         if (response.token) {
           this.tokenService.setToken(response.token);
         }
+        if (response.user && typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
       })
     );
   }
@@ -34,12 +37,18 @@ export class AuthService {
         if (response.token) {
           this.tokenService.setToken(response.token);
         }
+        if (response.user && typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
       })
     );
   }
 
   logout(): void {
     this.tokenService.removeToken();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+    }
     this.router.navigate(['/auth/login']);
   }
 
@@ -49,5 +58,19 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.tokenService.hasToken();
+  }
+
+  getUser(): any {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          return JSON.parse(userStr);
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
   }
 }

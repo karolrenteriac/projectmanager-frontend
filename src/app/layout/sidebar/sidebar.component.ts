@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -54,9 +55,10 @@ import { MatIconModule } from '@angular/material/icon';
     }
   `]
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   @Output() navClick = new EventEmitter<void>();
 
+  private authService = inject(AuthService);
   menuItems = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
     { label: 'Projects', icon: 'folder', route: '/projects' },
@@ -67,6 +69,13 @@ export class SidebarComponent {
     { label: 'Reports', icon: 'assessment', route: '/reports' },
     { label: 'Settings', icon: 'settings', route: '/settings' }
   ];
+
+  ngOnInit() {
+    const user = this.authService.getUser();
+    if (user && user.role === 'admin') {
+      this.menuItems.splice(1, 0, { label: 'Invitations', icon: 'mail', route: '/invitations' });
+    }
+  }
 
   onNavClick() {
     if (window.innerWidth < 960) {

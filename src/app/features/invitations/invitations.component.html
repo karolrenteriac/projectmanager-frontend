@@ -1,0 +1,150 @@
+<div class="invitations-container fade-in">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Team Invitations</h1>
+    <p class="page-subtitle">Invite new members and manage existing invitations</p>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Left Column: Send Invitation Form -->
+    <div class="form-column">
+      <mat-card class="sakai-card form-card">
+        <mat-card-header>
+          <div class="card-icon-header">
+            <mat-icon class="text-primary">person_add</mat-icon>
+          </div>
+          <mat-card-title>Send Invitation</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="invitationForm" (ngSubmit)="onSubmit()" class="form-layout">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email Address</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="colleague@domain.com">
+              <mat-icon matPrefix>email</mat-icon>
+              @if (invitationForm.get('email')?.hasError('required')) {
+                <mat-error>Email is required</mat-error>
+              }
+              @if (invitationForm.get('email')?.hasError('email')) {
+                <mat-error>Enter a valid email address</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Role</mat-label>
+              <mat-select formControlName="role">
+                <mat-option value="admin">Admin</mat-option>
+                <mat-option value="coordinator">Coordinator</mat-option>
+                <mat-option value="principal">Principal</mat-option>
+                <mat-option value="co-researcher">Co-Researcher</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>badge</mat-icon>
+              @if (invitationForm.get('role')?.hasError('required')) {
+                <mat-error>Role is required</mat-error>
+              }
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" type="submit" [disabled]="invitationForm.invalid || isSending" class="submit-btn full-width">
+              @if (isSending) {
+                <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                Sending...
+              } @else {
+                <mat-icon>send</mat-icon> Send Invitation
+              }
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Right Column: Recent Invitations List -->
+    <div class="list-column">
+      <mat-card class="sakai-card list-card">
+        <mat-card-header class="list-header">
+          <div class="header-content">
+            <mat-card-title>Recent Invitations</mat-card-title>
+            <span class="p-badge" *ngIf="!isLoading">{{ invitations.length }}</span>
+          </div>
+          <button mat-icon-button (click)="loadInvitations()" [disabled]="isLoading" matTooltip="Refresh">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </mat-card-header>
+
+        <mat-card-content class="table-container">
+          @if (isLoading && invitations.length === 0) {
+            <div class="loading-state">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Loading invitations...</p>
+            </div>
+          } @else if (invitations.length === 0) {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">mail_outline</mat-icon>
+              <h3>No invitations yet</h3>
+              <p>Send an invitation to a team member to get started.</p>
+            </div>
+          } @else {
+            <table mat-table [dataSource]="invitations" class="full-width table-hover">
+              <!-- Email Column -->
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef> Email </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <div class="user-info">
+                    <span class="user-avatar">{{ element.email.charAt(0).toUpperCase() }}</span>
+                    <span class="user-email">{{element.email}}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Role Column -->
+              <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef> Role </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <span class="role-badge {{element.role}}">{{element.role}}</span>
+                </td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element"> 
+                  @if (element.used) {
+                    <mat-chip-set>
+                      <mat-chip disableRipple class="status-chip status-used">Registered</mat-chip>
+                    </mat-chip-set>
+                  } @else {
+                    <mat-chip-set>
+                      <mat-chip disableRipple class="status-chip status-pending">Pending</mat-chip>
+                    </mat-chip-set>
+                  }
+                </td>
+              </ng-container>
+
+              <!-- Created At Column -->
+              <ng-container matColumnDef="createdAt">
+                <th mat-header-cell *matHeaderCellDef> Date Sent </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <div class="date-cell">
+                    {{element.createdAt | date:'mediumDate'}}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Expires At Column -->
+              <ng-container matColumnDef="expiresAt">
+                <th mat-header-cell *matHeaderCellDef> Expires </th>
+                <td mat-cell *matCellDef="let element"> 
+                  <div class="date-cell" [class.expired]="!element.used && element.expiresAt < today.toISOString()">
+                    {{element.expiresAt | date:'mediumDate'}}
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
