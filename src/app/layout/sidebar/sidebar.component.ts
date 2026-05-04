@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterModule, MatListModule, MatIconModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']

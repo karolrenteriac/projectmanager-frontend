@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface Project {
@@ -50,9 +51,9 @@ export class ProjectService {
     return this.http.get<{ projects: Project[] }>(this.apiUrl, { params });
   }
 
-  // ✅ CORREGIDO
   getProjectById(id: string): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`);
+    return this.http.get<{ project: Project }>(`${this.apiUrl}/${id}`)
+      .pipe(map(res => res.project));
   }
 
   createProject(data: Project): Observable<Project> {

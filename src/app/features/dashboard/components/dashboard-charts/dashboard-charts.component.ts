@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -12,16 +12,17 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard-charts',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, BaseChartDirective, MatCardModule],
   templateUrl: './dashboard-charts.component.html',
   styleUrl: './dashboard-charts.component.css'
 })
 export class DashboardChartsComponent implements OnInit {
 
-  // 🔥 IMPORTANTE: manejar múltiples charts
   @ViewChildren(BaseChartDirective) charts!: QueryList<BaseChartDirective>;
 
   public isLoading = true;
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(private dashboardService: DashboardService) { }
 
@@ -173,10 +174,12 @@ export class DashboardChartsComponent implements OnInit {
 
         this.updateCharts();
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading activity:', err);
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }

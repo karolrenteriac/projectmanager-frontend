@@ -1,23 +1,23 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, NgZone, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
-import { map, shareReplay } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatSidenavModule, RouterOutlet, SidebarComponent, TopbarComponent],
   template: `
     <mat-sidenav-container class="sidenav-container">
       <mat-sidenav #drawer class="sidenav" fixedInViewport
-          [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-          [mode]="(isHandset$ | async) ? 'over' : 'side'"
-          [opened]="(isHandset$ | async) === false">
+          [attr.role]="isHandset() ? 'dialog' : 'navigation'"
+          [mode]="isHandset() ? 'over' : 'side'"
+          [opened]="!isHandset()">
         <app-sidebar (navClick)="drawer.close()"></app-sidebar>
       </mat-sidenav>
       <mat-sidenav-content>
@@ -51,10 +51,17 @@ import { Observable } from 'rxjs';
 })
 export class LayoutComponent {
   private breakpointObserver = inject(BreakpointObserver);
+  private ngZone = inject(NgZone);
 
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
+  isHandset = signal(false);
+
+  constructor() {
+    this.ngZone.runOutsideAngular(() => {
+      this.breakpointObserver.observe(Breakpoints.Handset)
+        .pipe(distinctUntilChanged((a, b) => a.matches === b.matches))
+        .subscribe(result => {
+          this.ngZone.run(() => this.isHandset.set(result.matches));
+        });
+    });
+  }
 }

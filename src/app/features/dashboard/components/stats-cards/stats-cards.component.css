@@ -5,14 +5,12 @@
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
-/* Tablet */
 @media (min-width: 640px) {
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
   .stats-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -20,7 +18,7 @@
 }
 
 .stat-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: var(--border-radius-lg, 16px);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
@@ -28,7 +26,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-subtle);
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -53,7 +51,7 @@
 }
 
 .stat-label {
-  color: #64748b; /* slate-500 */
+  color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
@@ -62,7 +60,7 @@
 }
 
 .stat-value {
-  color: #1e293b; /* slate-900 */
+  color: var(--text-primary);
   font-size: 2.25rem;
   font-weight: 800;
   line-height: 1;
@@ -89,7 +87,6 @@
   height: 26px;
 }
 
-/* Middle Sparkline */
 .stat-middle {
   margin: 1rem 0;
   opacity: 0.7;
@@ -104,7 +101,6 @@
   width: 100%;
 }
 
-/* Footer & Trends */
 .stat-footer {
   margin-top: 0.5rem;
   display: flex;
@@ -122,12 +118,12 @@
 }
 
 .trend-up {
-  color: #10b981; /* emerald-500 */
+  color: #10b981;
   background-color: rgba(16, 185, 129, 0.1);
 }
 
 .trend-down {
-  color: #ef4444; /* red-500 */
+  color: #ef4444;
   background-color: rgba(239, 68, 68, 0.1);
 }
 
@@ -140,11 +136,10 @@
 
 .subtitle-text {
   font-size: 0.75rem;
-  color: #94a3b8; /* slate-400 */
+  color: var(--text-muted);
   font-weight: 500;
 }
 
-/* Optional: add a subtle blue glow on click */
 .stat-card:active {
   transform: translateY(-2px) scale(0.98);
 }

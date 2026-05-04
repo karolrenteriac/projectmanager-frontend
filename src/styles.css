@@ -37,11 +37,22 @@ body {
   --mat-sys-surface-container-highest: #e2e8f0;
   --mat-sys-outline-variant: #e2e8f0;
 
+  --card-bg: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --text-emphasis: #334155;
+  --surface-hover: #f8fafc;
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --divider-color: #f1f5f9;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+
   background-color: #f8fafc;
   color: #1e293b;
 }
 
-/* 🌙 DARK THEME (ARREGLADO) */
+/* 🌙 DARK THEME */
 .dark-theme {
   --mat-sys-surface: #0f172a;
   --mat-sys-on-surface: #f1f5f9;
@@ -50,6 +61,17 @@ body {
   --mat-sys-surface-container-high: #1e293b;
   --mat-sys-surface-container-highest: #334155;
   --mat-sys-outline-variant: #334155;
+
+  --card-bg: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-emphasis: #cbd5e1;
+  --surface-hover: #334155;
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --divider-color: #334155;
+  --scrollbar-track: #1e293b;
+  --scrollbar-thumb: #475569;
 
   background-color: #020617;
   color: #f1f5f9;

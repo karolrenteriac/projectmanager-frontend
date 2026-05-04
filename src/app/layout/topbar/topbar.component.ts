@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, inject, OnInit, OnDestroy, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,10 +9,12 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatInputModule, MatFormFieldModule, MatBadgeModule],
   template: `
     <mat-toolbar class="topbar">
@@ -119,12 +121,13 @@ import { DashboardService } from '../../services/dashboard.service';
     }
   `]
 })
-export class TopbarComponent implements OnInit {
+export class TopbarComponent implements OnInit, OnDestroy {
   @Output() toggleSidenav = new EventEmitter<void>();
-  
+
   themeService = inject(ThemeService);
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
+  private destroyRef = inject(DestroyRef);
 
   notificationCount = 0;
 
@@ -133,17 +136,22 @@ export class TopbarComponent implements OnInit {
   }
 
   loadNotificationCount(): void {
-    this.dashboardService.getNotifications().subscribe({
-      next: (data) => {
-        this.notificationCount = data?.length || 0;
-      },
-      error: () => {
-        this.notificationCount = 0;
-      }
-    });
+    this.dashboardService.getNotifications()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.notificationCount = data?.length || 0;
+        },
+        error: () => {
+          this.notificationCount = 0;
+        }
+      });
   }
 
   goToNotifications(): void {
     this.router.navigate(['/dashboard/notifications']);
+  }
+
+  ngOnDestroy(): void {
   }
 }

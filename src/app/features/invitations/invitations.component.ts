@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -31,6 +31,7 @@ import { MatChipsModule } from '@angular/material/chips';
     MatChipsModule,
     DatePipe
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invitations.component.html',
   styleUrl: './invitations.component.css'
 })
@@ -38,6 +39,7 @@ export class InvitationsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private invitationService = inject(InvitationService);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   invitations: Invitation[] = [];
   displayedColumns: string[] = ['email', 'role', 'status', 'createdAt', 'expiresAt'];
@@ -54,26 +56,22 @@ export class InvitationsComponent implements OnInit {
     this.loadInvitations();
   }
   loadInvitations() {
-  this.isLoading = true;
+    this.isLoading = true;
 
-  this.invitationService.getInvitations().subscribe({
-    next: (res: any) => {
-      setTimeout(() => { // 🔥 FIX AQUÍ
+    this.invitationService.getInvitations().subscribe({
+      next: (res: any) => {
         this.invitations = res.data;
         this.isLoading = false;
-      });
-    },
-    error: (err: any) => {
-      console.error('Error loading invitations:', err);
-
-      setTimeout(() => { // 🔥 TAMBIÉN AQUÍ
+        this.cdr.markForCheck();
+      },
+      error: (err: any) => {
+        console.error('Error loading invitations:', err);
         this.isLoading = false;
-      });
-
-      this.snackBar.open('Failed to load invitations', 'Close', { duration: 3000 });
-    }
-  });
-}
+        this.cdr.markForCheck();
+        this.snackBar.open('Failed to load invitations', 'Close', { duration: 3000 });
+      }
+    });
+  }
 
   onSubmit() {
     if (this.invitationForm.invalid) {

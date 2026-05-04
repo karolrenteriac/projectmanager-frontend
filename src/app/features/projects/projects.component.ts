@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -25,6 +25,7 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
 @Component({
   selector: 'app-projects',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -51,6 +52,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   searchTerm = '';
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
+
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private projectService: ProjectService,
@@ -80,6 +83,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.projects = res.projects || [];
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading projects:', err);
@@ -89,6 +93,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
         });
         this.projects = [];
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }

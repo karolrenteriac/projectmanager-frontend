@@ -48,7 +48,6 @@ import { AuthService } from '../../services/auth.service';
       padding: 2rem;
       max-width: 1600px;
       margin: 0 auto;
-      background-color: #f8fafc;
       min-height: 100vh;
     }
 
@@ -59,12 +58,12 @@ import { AuthService } from '../../services/auth.service';
     .dashboard-header h1 {
       font-size: 1.875rem;
       font-weight: 800;
-      color: #1e293b;
+      color: var(--text-primary);
       margin-bottom: 0.5rem;
     }
 
     .dashboard-header p {
-      color: #64748b;
+      color: var(--text-secondary);
       font-size: 1rem;
       line-height: 1.5;
     }

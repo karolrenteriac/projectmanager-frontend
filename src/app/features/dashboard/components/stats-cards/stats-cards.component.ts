@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { DashboardService } from '../../../../services/dashboard.service';
 @Component({
   selector: 'app-stats-cards',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatCardModule, MatIconModule, MatTooltipModule],
   templateUrl: './stats-cards.component.html',
   styleUrl: './stats-cards.component.css'
@@ -72,6 +73,8 @@ export class StatsCardsComponent implements OnInit {
     }
   ];
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(private router: Router, private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
@@ -81,18 +84,15 @@ export class StatsCardsComponent implements OnInit {
   private loadSummary(): void {
     this.dashboardService.getSummary().subscribe({
       next: (data: any) => {
-        // Safe data assignment as requested
         this.projects = data?.totalProjects ?? 0;
         this.tasks = data?.totalTasks ?? 0;
         this.users = data?.activeUsers ?? 0;
         this.progress = data?.progress ?? 0;
-
-        // Map to stats array for UI rendering
         this.updateUI(data);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading stats summary:', err);
-        // Stats remain with default 0 values, cards stay visible
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -31,6 +31,7 @@ import { ProjectService, Project, User } from '../../../services/project.service
     MatProgressSpinnerModule,
     MatSnackBarModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './create-project.component.html',
   styleUrl: './create-project.component.css'
 })
@@ -41,6 +42,7 @@ export class CreateProjectComponent implements OnInit {
 
   isEditMode = false;
   projectId: string | null = null;
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private fb: FormBuilder,
@@ -79,7 +81,6 @@ export class CreateProjectComponent implements OnInit {
 
     this.projectService.getProjectById(this.projectId).subscribe({
       next: (project) => {
-
         this.projectForm.patchValue({
           title: project.title || '',
           description: project.description || '',
@@ -90,12 +91,13 @@ export class CreateProjectComponent implements OnInit {
           status: project.status || 'planning',
           progress: project.progress || 0
         });
-
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error("ERROR loading project:", err);
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -104,6 +106,7 @@ export class CreateProjectComponent implements OnInit {
     this.projectService.getUsers().subscribe({
       next: (data) => {
         this.users = data || [];
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading users:', err);
@@ -137,11 +140,13 @@ export class CreateProjectComponent implements OnInit {
       this.projectService.updateProject(this.projectId, projectData).subscribe({
         next: () => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.snackBar.open('Project updated successfully!', 'OK', { duration: 3000 });
           this.router.navigate(['/projects']);
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.snackBar.open(err.error?.message || 'Error updating project', 'Close');
         }
       });
@@ -149,11 +154,13 @@ export class CreateProjectComponent implements OnInit {
       this.projectService.createProject(projectData).subscribe({
         next: () => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.snackBar.open('Project created successfully!', 'OK', { duration: 3000 });
           this.router.navigate(['/projects']);
         },
         error: (err) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.snackBar.open(err.error?.message || 'Error creating project', 'Close');
         }
       });
