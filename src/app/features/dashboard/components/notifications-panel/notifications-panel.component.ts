@@ -25,7 +25,6 @@ export class NotificationsPanelComponent implements OnInit {
   fetchNotifications(): void {
     this.dashboardService.getNotifications().subscribe({
       next: (data: any) => {
-        console.log('Notifications:', data);
         this.notifications = data || [];
       },
       error: (err) => {

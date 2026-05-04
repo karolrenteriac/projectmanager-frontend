@@ -53,21 +53,27 @@ export class InvitationsComponent implements OnInit {
   ngOnInit() {
     this.loadInvitations();
   }
-
   loadInvitations() {
-    this.isLoading = true;
-    this.invitationService.getInvitations().subscribe({
-      next: (res: any) => {
+  this.isLoading = true;
+
+  this.invitationService.getInvitations().subscribe({
+    next: (res: any) => {
+      setTimeout(() => { // 🔥 FIX AQUÍ
         this.invitations = res.data;
         this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.error('Error loading invitations:', err);
-        this.snackBar.open('Failed to load invitations', 'Close', { duration: 3000 });
+      });
+    },
+    error: (err: any) => {
+      console.error('Error loading invitations:', err);
+
+      setTimeout(() => { // 🔥 TAMBIÉN AQUÍ
         this.isLoading = false;
-      }
-    });
-  }
+      });
+
+      this.snackBar.open('Failed to load invitations', 'Close', { duration: 3000 });
+    }
+  });
+}
 
   onSubmit() {
     if (this.invitationForm.invalid) {

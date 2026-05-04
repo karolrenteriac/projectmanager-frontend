@@ -1,0 +1,169 @@
+<div class="projects-page fade-in">
+  <!-- ═══════════════════════════════════════════ HEADER ═══════════════════════════════════════════ -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="header-icon-wrapper">
+        <mat-icon class="header-icon">rocket_launch</mat-icon>
+      </div>
+      <div class="header-text">
+        <h1>Projects</h1>
+        <p class="subtitle">Manage and track all your team projects</p>
+      </div>
+    </div>
+    <button mat-flat-button class="btn-create" (click)="createNewProject()" id="btn-new-project">
+      <mat-icon>add</mat-icon>
+      <span>New Project</span>
+    </button>
+  </header>
+
+  <!-- ═══════════════════════════════════════ SEARCH BAR ═══════════════════════════════════════ -->
+  <div class="search-section">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search projects by name or description..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        id="input-search-projects"
+      />
+      @if (searchTerm) {
+        <button mat-icon-button class="search-clear" (click)="searchTerm = ''; onSearchChange('')" matTooltip="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+    <div class="results-count" *ngIf="!isLoading">
+      <span class="count-badge">{{ projects.length }}</span>
+      {{ projects.length === 1 ? 'project' : 'projects' }}
+      <span *ngIf="searchTerm"> matching "{{ searchTerm }}"</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ LOADING STATE ═══════════════════════════════════════ -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="loading-card">
+        <mat-spinner diameter="48" color="primary" mode="indeterminate"></mat-spinner>
+        <p class="loading-text">Loading projects...</p>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════ EMPTY STATE ═══════════════════════════════════════ -->
+  @if (!isLoading && projects.length === 0) {
+    <div class="empty-state">
+      <div class="empty-state-card">
+        <div class="empty-icon-wrapper">
+          <mat-icon class="empty-icon">folder_open</mat-icon>
+        </div>
+        <h2>No projects found</h2>
+        <p *ngIf="searchTerm">
+          No projects match "<strong>{{ searchTerm }}</strong>". Try a different search term.
+        </p>
+        <p *ngIf="!searchTerm">
+          You don't have any projects yet. Create your first project to get started!
+        </p>
+        <button mat-flat-button class="btn-create" (click)="createNewProject()" *ngIf="!searchTerm">
+          <mat-icon>add</mat-icon>
+          Create First Project
+        </button>
+        <button mat-stroked-button class="btn-clear-search" (click)="searchTerm = ''; onSearchChange('')" *ngIf="searchTerm">
+          <mat-icon>search_off</mat-icon>
+          Clear Search
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════ PROJECT CARDS GRID ═══════════════════════════════════ -->
+  @if (!isLoading && projects.length > 0) {
+    <div class="projects-grid">
+      @for (project of projects; track trackByProjectId($index, project)) {
+        <div class="project-card" matRipple [matRippleCentered]="false" [matRippleRadius]="200">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="card-title-area">
+              <h3 class="card-title">{{ project.title }}</h3>
+              <span class="status-chip" [ngClass]="getStatusClass(project.status)">
+                {{ getStatusLabel(project.status) }}
+              </span>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="actionsMenu" class="btn-more" matTooltip="Actions">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #actionsMenu="matMenu" class="actions-menu">
+              <button mat-menu-item (click)="editProject(project)" id="btn-edit-{{ project.id || project._id }}">
+                <mat-icon class="menu-icon-edit">edit</mat-icon>
+                <span>Edit</span>
+              </button>
+              <button mat-menu-item (click)="exportProject(project)" id="btn-export-{{ project.id || project._id }}">
+                <mat-icon class="menu-icon-export">download</mat-icon>
+                <span>Export JSON</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="confirmDelete(project)" class="delete-option" id="btn-delete-{{ project.id || project._id }}">
+                <mat-icon class="menu-icon-delete">delete_outline</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          </div>
+
+          <!-- Description -->
+          <p class="card-description" *ngIf="project.description">
+            {{ project.description | slice:0:120 }}{{ project.description && project.description.length > 120 ? '...' : '' }}
+          </p>
+          <p class="card-description empty-desc" *ngIf="!project.description">
+            No description provided
+          </p>
+
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <div class="progress-header">
+              <span class="progress-label">Progress</span>
+              <span class="progress-value" [style.color]="getProgressColor(project.progress)">
+                {{ project.progress || 0 }}%
+              </span>
+            </div>
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                [style.width.%]="project.progress || 0"
+                [style.background]="getProgressColor(project.progress)"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer">
+            <!-- Members Avatars -->
+            <div class="members-area">
+              @if (project.members && project.members.length > 0) {
+                <div class="avatar-stack">
+                  @for (member of project.members | slice:0:3; track $index) {
+                    <div class="avatar" [matTooltip]="member?.name || 'Team member'">
+                      {{ getMemberInitials(member) }}
+                    </div>
+                  }
+                  @if (project.members.length > 3) {
+                    <div class="avatar avatar-more" [matTooltip]="'+' + (project.members.length - 3) + ' more'">
+                      +{{ project.members.length - 3 }}
+                    </div>
+                  }
+                </div>
+              } @else {
+                <span class="no-members">No members</span>
+              }
+            </div>
+            <!-- Date -->
+            <div class="date-area">
+              <mat-icon class="date-icon">calendar_today</mat-icon>
+              <span class="date-text">{{ formatDate(project.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

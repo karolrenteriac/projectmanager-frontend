@@ -1,0 +1,41 @@
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 12px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.logo-container:hover {
+    opacity: 0.8;
+}
+
+.logo-icon {
+    font-size: 32px;
+    height: 32px;
+    width: 32px;
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--mat-sys-on-surface);
+}
+
+/* NAV */
+.nav-list {
+    padding-top: 0;
+}
+
+.nav-list a {
+    margin: 4px 12px;
+    border-radius: 8px;
+}
+
+/* ACTIVE ITEM */
+.active-nav-item {
+    background-color: var(--mat-sys-secondary-container, #e2e8f0);
+    font-weight: 600;
+}

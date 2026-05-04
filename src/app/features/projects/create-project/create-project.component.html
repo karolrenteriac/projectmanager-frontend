@@ -1,11 +1,17 @@
 <div class="create-project-container">
   <mat-card class="create-project-card">
     <mat-card-header>
-      <mat-card-title>Create New Project</mat-card-title>
-      <mat-card-subtitle>Set up your project details and team</mat-card-subtitle>
+      <mat-card-title>{{ isEditMode ? 'Edit Project' : 'Create New Project' }}</mat-card-title>
+      <mat-card-subtitle>{{ isEditMode ? 'Update your project details' : 'Set up your project details and team' }}</mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content>
+    <!-- Loading existing project data -->
+    <div class="loading-project" *ngIf="isLoading">
+      <mat-spinner diameter="36"></mat-spinner>
+      <p>Loading project data...</p>
+    </div>
+
+    <mat-card-content *ngIf="!isLoading">
       <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
         <div class="form-grid">
           <!-- Title -->
@@ -46,6 +52,26 @@
             </mat-form-field>
           </div>
 
+          <!-- Status & Progress Row -->
+          <div class="row" *ngIf="isEditMode">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="planning">Planning</mat-option>
+                <mat-option value="in-progress">In Progress</mat-option>
+                <mat-option value="completed">Completed</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Progress (%)</mat-label>
+              <input matInput type="number" formControlName="progress" min="0" max="100">
+              <mat-error *ngIf="projectForm.get('progress')?.hasError('min') || projectForm.get('progress')?.hasError('max')">
+                Progress must be between 0 and 100
+              </mat-error>
+            </mat-form-field>
+          </div>
+
           <!-- Members (Multi-select) -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Team Members</mat-label>
@@ -63,7 +89,7 @@
           <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
           <button mat-flat-button color="primary" type="submit" [disabled]="projectForm.invalid || isLoading">
             <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-            <span *ngIf="!isLoading">Create Project</span>
+            <span *ngIf="!isLoading">{{ isEditMode ? 'Update Project' : 'Create Project' }}</span>
           </button>
         </div>
       </form>

@@ -71,3 +71,12 @@ button[color="primary"] mat-spinner {
 ::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-label {
   color: #6366f1 !important;
 }
+
+.loading-project {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: #64748b;
+}

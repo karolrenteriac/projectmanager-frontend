@@ -130,7 +130,6 @@ export class DashboardChartsComponent implements OnInit {
     // 🔵 LINE CHART
     this.dashboardService.getProgress().subscribe({
       next: (res: any) => {
-        console.log('Progress:', res);
 
         this.lineChartData.labels = res?.months || res?.labels || [];
 
@@ -148,7 +147,6 @@ export class DashboardChartsComponent implements OnInit {
     // 🟣 DONUT CHART
     this.dashboardService.getTaskDistribution().subscribe({
       next: (res: any) => {
-        console.log('Distribution:', res);
 
         this.donutChartData.labels = res?.labels || ['Completed', 'Pending', 'Overdue'];
 
@@ -167,7 +165,6 @@ export class DashboardChartsComponent implements OnInit {
     // 🟢 BAR CHART
     this.dashboardService.getUserActivity().subscribe({
       next: (res: any) => {
-        console.log('Activity:', res);
 
         this.barChartData.labels = res?.days || res?.labels || [];
 

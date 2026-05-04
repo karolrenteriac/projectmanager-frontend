@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ProjectService, Project, User } from '../../../services/project.service';
 
 @Component({
@@ -39,10 +39,14 @@ export class CreateProjectComponent implements OnInit {
   isLoading = false;
   users: User[] = [];
 
+  isEditMode = false;
+  projectId: string | null = null;
+
   constructor(
     private fb: FormBuilder,
     private projectService: ProjectService,
     private router: Router,
+    private route: ActivatedRoute,
     private snackBar: MatSnackBar
   ) {
     this.projectForm = this.fb.group({
@@ -51,23 +55,59 @@ export class CreateProjectComponent implements OnInit {
       objectives: [''],
       startDate: [null],
       endDate: [null],
-      members: [[]] // Initialized as empty array
+      members: [[]],
+      status: ['planning'],
+      progress: [0, [Validators.min(0), Validators.max(100)]]
     });
   }
 
   ngOnInit(): void {
     this.loadUsers();
+
+    this.projectId = this.route.snapshot.paramMap.get('id');
+
+    if (this.projectId) {
+      this.isEditMode = true;
+      this.loadProject();
+    }
+  }
+
+  loadProject() {
+    if (!this.projectId) return;
+
+    this.isLoading = true;
+
+    this.projectService.getProjectById(this.projectId).subscribe({
+      next: (project) => {
+
+        this.projectForm.patchValue({
+          title: project.title || '',
+          description: project.description || '',
+          objectives: project.objectives || '',
+          startDate: project.startDate ? new Date(project.startDate) : null,
+          endDate: project.endDate ? new Date(project.endDate) : null,
+          members: (project.members || []).map((m: any) => m._id || m),
+          status: project.status || 'planning',
+          progress: project.progress || 0
+        });
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error("ERROR loading project:", err);
+        this.isLoading = false;
+      }
+    });
   }
 
   loadUsers(): void {
     this.projectService.getUsers().subscribe({
       next: (data) => {
         this.users = data || [];
-        console.log("Team members available:", this.users.length);
       },
       error: (err) => {
         console.error('Error loading users:', err);
-        this.snackBar.open('Failed to load team members', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
       }
     });
   }
@@ -80,34 +120,44 @@ export class CreateProjectComponent implements OnInit {
 
     this.isLoading = true;
 
-    // Prepare data ensuring strictly correct formats
     const rawValue = this.projectForm.value;
-    
+
     const projectData: Project = {
       title: rawValue.title.trim(),
       description: rawValue.description || '',
       objectives: rawValue.objectives || '',
       startDate: rawValue.startDate ? new Date(rawValue.startDate).toISOString() : null,
       endDate: rawValue.endDate ? new Date(rawValue.endDate).toISOString() : null,
-      // CRITICAL: Ensure members is always an array of string IDs
-      members: (Array.isArray(rawValue.members) ? rawValue.members : []).map((m: any) => String(m))
+      members: (Array.isArray(rawValue.members) ? rawValue.members : []).map((m: any) => String(m)),
+      status: rawValue.status || 'planning',
+      progress: Number(rawValue.progress) || 0
     };
 
-    console.log("Sending project data:", projectData);
-
-    this.projectService.createProject(projectData).subscribe({
-      next: (project) => {
-        this.isLoading = false;
-        this.snackBar.open('Project created successfully!', 'Success', { duration: 3000 });
-        this.router.navigate(['/projects']);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const errorMessage = err.error?.message || 'Server error creating project';
-        this.snackBar.open(errorMessage, 'Error', { duration: 5000 });
-        console.error("Backend Error:", err);
-      }
-    });
+    if (this.isEditMode && this.projectId) {
+      this.projectService.updateProject(this.projectId, projectData).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.snackBar.open('Project updated successfully!', 'OK', { duration: 3000 });
+          this.router.navigate(['/projects']);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.snackBar.open(err.error?.message || 'Error updating project', 'Close');
+        }
+      });
+    } else {
+      this.projectService.createProject(projectData).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.snackBar.open('Project created successfully!', 'OK', { duration: 3000 });
+          this.router.navigate(['/projects']);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.snackBar.open(err.error?.message || 'Error creating project', 'Close');
+        }
+      });
+    }
   }
 
   onCancel(): void {

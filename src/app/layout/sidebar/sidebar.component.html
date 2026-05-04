@@ -1,0 +1,14 @@
+<!-- LOGO (CLICKABLE) -->
+<a class="logo-container" routerLink="/dashboard">
+    <mat-icon color="primary" class="logo-icon">layers</mat-icon>
+    <span class="logo-text">ProjectManager</span>
+</a>
+
+<!-- MENU -->
+<mat-nav-list class="nav-list">
+    <a *ngFor="let item of menuItems" mat-list-item [routerLink]="item.route" routerLinkActive="active-nav-item"
+        (click)="onNavClick()">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <div matListItemTitle>{{ item.label }}</div>
+    </a>
+</mat-nav-list>

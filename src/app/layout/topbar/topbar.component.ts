@@ -34,7 +34,7 @@ import { DashboardService } from '../../services/dashboard.service';
       </button>
       
       <button mat-icon-button aria-label="Notifications" (click)="goToNotifications()" class="nav-button notification-btn">
-        <mat-icon [matBadge]="notificationCount > 0 ? notificationCount : null" matBadgeColor="warn">notifications</mat-icon>
+        <mat-icon aria-hidden="false" [matBadge]="notificationCount > 0 ? notificationCount : null" matBadgeColor="warn">notifications</mat-icon>
       </button>
 
       <button mat-icon-button class="avatar-btn">

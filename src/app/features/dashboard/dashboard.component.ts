@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatsCardsComponent } from './components/stats-cards/stats-cards.component';
 import { DashboardChartsComponent } from './components/dashboard-charts/dashboard-charts.component';
 import { NotificationsPanelComponent } from './components/notifications-panel/notifications-panel.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
-    StatsCardsComponent, 
-    DashboardChartsComponent, 
+    CommonModule,
+    StatsCardsComponent,
+    DashboardChartsComponent,
     NotificationsPanelComponent
   ],
   template: `
@@ -18,7 +19,12 @@ import { NotificationsPanelComponent } from './components/notifications-panel/no
       <header class="dashboard-header">
         <div class="header-info">
           <h1>Dashboard Overview</h1>
-          <p>Welcome back! Here's what's happening with your projects today.</p>
+
+          <!-- 🔥 TEXTO DINÁMICO -->
+          <p>
+            Welcome back, <strong>{{ userName }}</strong>  <br />
+            Here's what's happening with your projects today.
+          </p>
         </div>
       </header>
 
@@ -60,6 +66,12 @@ import { NotificationsPanelComponent } from './components/notifications-panel/no
     .dashboard-header p {
       color: #64748b;
       font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .dashboard-header strong {
+      color: #6366f1;
+      font-weight: 700;
     }
 
     .dashboard-main-grid {
@@ -87,4 +99,14 @@ import { NotificationsPanelComponent } from './components/notifications-panel/no
     }
   `]
 })
-export class DashboardComponent {}
+export class DashboardComponent implements OnInit {
+
+  userName: string = '';
+
+  constructor(private authService: AuthService) { }
+
+  ngOnInit(): void {
+    const user = this.authService.getUser();
+    this.userName = user?.name || 'User';
+  }
+}

@@ -21,6 +21,7 @@ export const routes: Routes = [
       { path: 'dashboard/notifications', loadComponent: () => import('./features/dashboard/components/notifications-panel/notifications-panel.component').then(m => m.NotificationsPanelComponent) },
       { path: 'projects', loadComponent: () => import('./features/projects/projects.component').then(m => m.ProjectsComponent) },
       { path: 'projects/new', loadComponent: () => import('./features/projects/create-project/create-project.component').then(m => m.CreateProjectComponent) },
+      { path: 'projects/edit/:id', loadComponent: () => import('./features/projects/create-project/create-project.component').then(m => m.CreateProjectComponent) },
       { path: 'invitations', loadComponent: () => import('./features/invitations/invitations.component').then(m => m.InvitationsComponent) },
 
       { path: 'tasks', loadComponent: () => import('./features/tasks/tasks.component').then(m => m.TasksComponent) },
