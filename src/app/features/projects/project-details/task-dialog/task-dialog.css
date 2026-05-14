@@ -1,0 +1,108 @@
+.task-dialog-container {
+  min-width: 450px;
+  max-width: 600px;
+}
+
+.dialog-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+
+.header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-icon { background: #e0f2fe; color: #0284c7; }
+.edit-icon { background: #f0fdf4; color: #16a34a; }
+
+h2[mat-dialog-title] {
+  margin: 0 !important;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.close-btn {
+  position: absolute;
+  right: 12px;
+  top: 16px;
+  color: #94a3b8;
+}
+
+.dialog-content {
+  padding: 24px !important;
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.status-todo { color: #ea580c; }
+.status-progress { color: #4f46e5; }
+.status-review { color: #db2777; }
+.status-done { color: #16a34a; }
+
+.dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.save-btn {
+  padding: 0 24px !important;
+  height: 44px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+mat-icon[matPrefix] {
+  margin-right: 8px;
+  color: #94a3b8;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dialog-header, .dialog-actions {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  h2[mat-dialog-title], .status-done { color: #f8fafc; }
+  .close-btn { color: #64748b; }
+}
+
+@media (max-width: 480px) {
+  .task-dialog-container {
+    min-width: 100%;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

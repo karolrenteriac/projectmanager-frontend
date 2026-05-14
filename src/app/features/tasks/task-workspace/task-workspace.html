@@ -1,0 +1,43 @@
+<div class="task-workspace-page fade-in">
+  @if (isLoading && !project) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading task board...</p>
+    </div>
+  }
+
+  @if (project) {
+    <header class="workspace-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" class="btn-back">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="title-group">
+          <h1>Tasks: {{ project.title }}</h1>
+          <p class="subtitle">Manage and track your tasks for this project</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="progress-badge">
+          Progress: {{ project.progress || 0 }}%
+        </span>
+      </div>
+    </header>
+
+    <main class="workspace-content">
+      <app-kanban 
+        [projectId]="project.id || project._id || ''" 
+        [tasks]="tasks" 
+        [members]="(project.principalResearchers || []).concat(project.coResearchers || [])"
+        (updated)="onTaskUpdated()">
+      </app-kanban>
+    </main>
+  } @else if (!isLoading) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <h3>Project not found</h3>
+      <p>We couldn't load the task board for this project. It might have been deleted or you may not have access.</p>
+      <button mat-flat-button color="primary" (click)="goBack()">Go Back to Projects</button>
+    </div>
+  }
+</div>

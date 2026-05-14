@@ -81,7 +81,7 @@
   @if (!isLoading && projects.length > 0) {
     <div class="projects-grid">
       @for (project of projects; track trackByProjectId($index, project)) {
-        <div class="project-card" matRipple [matRippleCentered]="false" [matRippleRadius]="200">
+        <div class="project-card" matRipple [matRippleCentered]="false" [matRippleRadius]="200" (click)="viewProjectDetails(project)">
           <!-- Card Header -->
           <div class="card-header">
             <div class="card-title-area">
@@ -90,7 +90,7 @@
                 {{ getStatusLabel(project.status) }}
               </span>
             </div>
-            <button mat-icon-button [matMenuTriggerFor]="actionsMenu" class="btn-more" matTooltip="Actions">
+            <button mat-icon-button [matMenuTriggerFor]="actionsMenu" class="btn-more" matTooltip="Actions" (click)="$event.stopPropagation()">
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #actionsMenu="matMenu" class="actions-menu">
@@ -137,18 +137,18 @@
 
           <!-- Card Footer -->
           <div class="card-footer">
-            <!-- Members Avatars -->
+            <!-- Team Avatars -->
             <div class="members-area">
-              @if (project.members && project.members.length > 0) {
+              @if ((project.principalResearchers?.length || 0) + (project.coResearchers?.length || 0) > 0) {
                 <div class="avatar-stack">
-                  @for (member of project.members | slice:0:3; track $index) {
+                  @for (member of ((project.principalResearchers || []).concat(project.coResearchers || [])) | slice:0:3; track $index) {
                     <div class="avatar" [matTooltip]="member?.name || 'Team member'">
                       {{ getMemberInitials(member) }}
                     </div>
                   }
-                  @if (project.members.length > 3) {
-                    <div class="avatar avatar-more" [matTooltip]="'+' + (project.members.length - 3) + ' more'">
-                      +{{ project.members.length - 3 }}
+                  @if (((project.principalResearchers?.length || 0) + (project.coResearchers?.length || 0)) > 3) {
+                    <div class="avatar avatar-more" [matTooltip]="'+' + (((project.principalResearchers?.length || 0) + (project.coResearchers?.length || 0)) - 3) + ' more'">
+                      +{{ ((project.principalResearchers?.length || 0) + (project.coResearchers?.length || 0)) - 3 }}
                     </div>
                   }
                 </div>

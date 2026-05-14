@@ -1,0 +1,343 @@
+.project-details-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════ HEADER ═══════════════════════════════════════════ */
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 24px;
+}
+
+.header-main {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.btn-back {
+  margin-top: 4px;
+}
+
+.project-info h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+  color: var(--text-primary, #1e293b);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.description {
+  color: var(--text-secondary, #64748b);
+  font-size: 16px;
+  max-width: 600px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-planning { background: #fef3c7; color: #92400e; }
+.status-in-progress { background: #e0e7ff; color: #3730a3; }
+.status-completed { background: #d1fae5; color: #065f46; }
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ═══════════════════════════════════════════ STATS ═══════════════════════════════════════════ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.total .stat-icon { background: #f8fafc; color: #64748b; }
+.todo .stat-icon { background: #fff7ed; color: #ea580c; }
+.in-progress .stat-icon { background: #eef2ff; color: #4f46e5; }
+.review .stat-icon { background: #fdf2f8; color: #db2777; }
+.done .stat-icon { background: #f0fdf4; color: #16a34a; }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Progress Circle */
+.stat-card.progress {
+  padding: 12px 20px;
+}
+
+.stat-progress-circle {
+  width: 60px;
+}
+
+.circular-chart {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 250px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #e2e8f0;
+  stroke-width: 3.8;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke: #10b981;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.percentage {
+  fill: #1e293b;
+  font-family: inherit;
+  font-size: 0.5em;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+/* ═══════════════════════════════════════════ TABS ═══════════════════════════════════════════ */
+.workspace-content {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+}
+
+.tab-pane {
+  padding: 24px;
+  min-height: 400px;
+}
+
+.custom-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+  background: #f8fafc;
+}
+
+.custom-tabs ::ng-deep .mat-mdc-tab-header {
+  background: white;
+  padding: 0 16px;
+}
+
+.custom-tabs ::ng-deep .mat-mdc-tab .mdc-tab__text-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.custom-tabs ::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: #4f46e5;
+}
+
+/* ═══════════════════════════════════════════ MEMBERS PANE ═══════════════════════════════════════════ */
+.members-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.members-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.member-item {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  background: #4f46e5;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.member-email {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.member-role {
+  font-size: 11px;
+  font-weight: 700;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════ INFO PANE ═══════════════════════════════════════════ */
+.info-card {
+  max-width: 800px;
+}
+
+.info-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.info-card p {
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 24px;
+}
+
+.info-dates {
+  display: flex;
+  gap: 40px;
+  margin-top: 24px;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-item .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.date-item .value {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ═══════════════════════════════════════════ UTILS ═══════════════════════════════════════════ */
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0;
+  gap: 16px;
+}
+
+.text-success { color: #16a34a; }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .stat-card, .workspace-content, .member-item {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  .project-info h1, .stat-value, .percentage, .member-name, .member-role, .date-item .value {
+    color: #f8fafc;
+  }
+  .description, .stat-label, .member-email, .info-card p, .custom-tabs ::ng-deep .mat-mdc-tab .mdc-tab__text-label {
+    color: #94a3b8;
+  }
+  .custom-tabs ::ng-deep .mat-mdc-tab-header, .custom-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+    background: #0f172a;
+  }
+  .circle-bg { stroke: #334155; }
+  .member-role { background: #334155; color: #cbd5e1; }
+}
+
+@media (max-width: 768px) {
+  .workspace-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .header-actions {
+    justify-content: flex-start;
+  }
+}

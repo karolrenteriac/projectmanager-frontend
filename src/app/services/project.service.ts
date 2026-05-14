@@ -4,6 +4,20 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+export interface User {
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface ProjectTeam {
+  coordinator: User | null;
+  principalResearchers: User[];
+  coResearchers: User[];
+}
+
 export interface Project {
   _id?: string;
   id?: string;
@@ -12,7 +26,9 @@ export interface Project {
   objectives?: string;
   startDate?: string | null;
   endDate?: string | null;
-  members?: any[];
+  projectCoordinator?: User | null;
+  principalResearchers?: User[];
+  coResearchers?: User[];
   status?: string;
   progress?: number;
   createdBy?: any;
@@ -20,28 +36,19 @@ export interface Project {
   updatedAt?: string;
 }
 
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
 export interface ProjectExport {
   project: Project;
+  team: ProjectTeam;
   tasks: any[];
-  members: any[];
   exportedAt: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ProjectService {
   private apiUrl = `${environment.apiUrl}/projects`;
   private userUrl = `${environment.apiUrl}/users`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getProjects(search?: string): Observable<{ projects: Project[] }> {
     let params = new HttpParams();
@@ -56,12 +63,14 @@ export class ProjectService {
       .pipe(map(res => res.project));
   }
 
-  createProject(data: Project): Observable<Project> {
-    return this.http.post<Project>(this.apiUrl, data);
+  createProject(data: Partial<Project>): Observable<Project> {
+    return this.http.post<{ project: Project }>(this.apiUrl, data)
+      .pipe(map(res => res.project));
   }
 
   updateProject(id: string, data: Partial<Project>): Observable<Project> {
-    return this.http.put<Project>(`${this.apiUrl}/${id}`, data);
+    return this.http.put<{ project: Project }>(`${this.apiUrl}/${id}`, data)
+      .pipe(map(res => res.project));
   }
 
   deleteProject(id: string): Observable<any> {

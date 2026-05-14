@@ -1,0 +1,84 @@
+<div class="task-dialog-container">
+  <div class="dialog-header">
+    <div class="header-icon" [ngClass]="isEditMode ? 'edit-icon' : 'create-icon'">
+      <mat-icon>{{ isEditMode ? 'edit' : 'add_task' }}</mat-icon>
+    </div>
+    <h2 mat-dialog-title>{{ isEditMode ? 'Edit Task' : 'Create New Task' }}</h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="task-form">
+      <!-- Title -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Task Title</mat-label>
+        <input matInput formControlName="title" placeholder="e.g. Design system audit" autofocus>
+        <mat-icon matPrefix>title</mat-icon>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">Title must be at least 3 characters</mat-error>
+      </mat-form-field>
+
+      <div class="form-row">
+        <!-- Status -->
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="pending">
+              <mat-icon class="status-todo">list</mat-icon> To Do
+            </mat-option>
+            <mat-option value="in-progress">
+              <mat-icon class="status-progress">sync</mat-icon> In Progress
+            </mat-option>
+            <mat-option value="review">
+              <mat-icon class="status-review">rate_review</mat-icon> Review
+            </mat-option>
+            <mat-option value="completed">
+              <mat-icon class="status-done">check_circle</mat-icon> Done
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>flag</mat-icon>
+        </mat-form-field>
+
+        <!-- Assignee -->
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Assigned To</mat-label>
+          <mat-select formControlName="assignedTo">
+            <mat-option [value]="''">Unassigned</mat-option>
+            @for (member of members; track member._id) {
+              <mat-option [value]="member._id">
+                {{ member.name }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Description -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="4" placeholder="Describe the task details..."></textarea>
+        <mat-icon matPrefix>description</mat-icon>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+    <button mat-flat-button color="primary" 
+            (click)="onSubmit()" 
+            [disabled]="taskForm.invalid || isLoading" 
+            class="save-btn">
+      @if (isLoading) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        <ng-container>
+          <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+          <span>{{ isEditMode ? 'Save Changes' : 'Create Task' }}</span>
+        </ng-container>
+      }
+    </button>
+  </mat-dialog-actions>
+</div>

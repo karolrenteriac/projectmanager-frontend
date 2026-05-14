@@ -111,6 +111,11 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/projects/edit', id]);
   }
 
+  viewProjectDetails(project: Project): void {
+    const id = project.id || project._id;
+    this.router.navigate(['/projects', id]);
+  }
+
   confirmDelete(project: Project): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',

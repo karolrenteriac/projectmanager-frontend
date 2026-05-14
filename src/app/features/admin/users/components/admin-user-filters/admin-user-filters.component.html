@@ -1,0 +1,41 @@
+<form [formGroup]="form" class="filters-row">
+
+  <!-- Search -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>Search by name or email</mat-label>
+    <input matInput formControlName="search" autocomplete="off">
+    <button *ngIf="form.get('search')?.value" matSuffix mat-icon-button
+            type="button" (click)="form.get('search')?.setValue('')">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <!-- Role filter -->
+  <mat-form-field appearance="outline" class="select-field">
+    <mat-label>Role</mat-label>
+    <mat-select formControlName="role">
+      <mat-option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</mat-option>
+    </mat-select>
+    <mat-icon matPrefix>badge</mat-icon>
+  </mat-form-field>
+
+  <!-- Status filter -->
+  <mat-form-field appearance="outline" class="select-field">
+    <mat-label>Status</mat-label>
+    <mat-select formControlName="active">
+      <mat-option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</mat-option>
+    </mat-select>
+    <mat-icon matPrefix>toggle_on</mat-icon>
+  </mat-form-field>
+
+  <!-- Clear button -->
+  <button mat-stroked-button type="button"
+          class="clear-btn"
+          *ngIf="hasActiveFilters()"
+          (click)="clearFilters()">
+    <mat-icon>filter_list_off</mat-icon>
+    Clear
+  </button>
+
+</form>

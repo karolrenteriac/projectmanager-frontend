@@ -1,0 +1,335 @@
+<!-- Hidden file input — triggered programmatically -->
+<input
+  #fileInput
+  type="file"
+  multiple
+  accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip,.txt"
+  style="display:none"
+  (change)="onFileSelected($event)">
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="dialog-header">
+  <div class="header-left">
+    <span class="status-badge" [ngClass]="task().status">
+      {{ task().status | uppercase }}
+    </span>
+    <h2 mat-dialog-title class="task-title">{{ task().title }}</h2>
+  </div>
+  <button mat-icon-button class="close-btn" matTooltip="Close" (click)="dialogRef.close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TABS
+════════════════════════════════════════════════════ -->
+<mat-dialog-content class="dialog-body">
+  <mat-tab-group animationDuration="150ms" class="detail-tabs">
+
+    <!-- ── TAB 1: OVERVIEW ─────────────────────────── -->
+    <mat-tab label="Overview">
+      <div class="tab-content">
+
+        <!-- Meta grid -->
+        <div class="meta-grid">
+          <div class="meta-cell">
+            <span class="meta-label">
+              <mat-icon>person</mat-icon> Assignee
+            </span>
+            <span class="meta-value">
+              <span class="avatar-xs" *ngIf="task().assignedTo?.name">
+                {{ getInitials(task().assignedTo?.name) }}
+              </span>
+              {{ task().assignedTo?.name || 'Unassigned' }}
+            </span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">
+              <mat-icon>flag</mat-icon> Priority
+            </span>
+            <span class="meta-value priority-badge" [ngClass]="task().priority">
+              {{ task().priority | uppercase }}
+            </span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">
+              <mat-icon>event</mat-icon> Due Date
+            </span>
+            <span class="meta-value">
+              {{ task().dueDate ? (task().dueDate | date:'MMM dd, yyyy') : '—' }}
+            </span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">
+              <mat-icon>account_circle</mat-icon> Created By
+            </span>
+            <span class="meta-value">{{ task().createdBy?.name || '—' }}</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="section-block" *ngIf="task().description">
+          <h3 class="section-heading">
+            <mat-icon>notes</mat-icon> Description
+          </h3>
+          <p class="description-text">{{ task().description }}</p>
+        </div>
+
+        <!-- ── CHECKLIST SECTION ──────────────────────── -->
+        <div class="section-block" *ngIf="task().checklist?.length">
+          <h3 class="section-heading">
+            <mat-icon>checklist</mat-icon>
+            Checklist
+            <span class="badge">{{ task().completedChecklistItems }}/{{ task().totalChecklistItems }}</span>
+          </h3>
+
+          <!-- Progress bar -->
+          <div class="cl-progress-row">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="task().checklistProgress || 0"
+              color="primary">
+            </mat-progress-bar>
+            <span class="cl-progress-pct">{{ task().checklistProgress || 0 }}%</span>
+          </div>
+
+          <!-- Items -->
+          <div class="cl-item-list">
+            <div class="cl-item" *ngFor="let item of task().checklist"
+                 [class.cl-done]="item.completed">
+              <mat-icon class="cl-check-icon">
+                {{ item.completed ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <span class="cl-item-title">{{ item.title }}</span>
+              <span class="cl-completed-by" *ngIf="item.completed && item.completedBy">
+                {{ item.completedBy.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── EVIDENCE SECTION ─────────────────────── -->
+        <div class="section-block">
+          <h3 class="section-heading">
+            <mat-icon>attach_file</mat-icon>
+            Evidence Files
+            <span class="badge" *ngIf="task().attachments?.length">
+              {{ task().attachments!.length }}
+            </span>
+          </h3>
+
+          <!-- UPLOAD ZONE — visible when user has permission -->
+          <div *ngIf="canUpload()">
+            <div
+              class="drop-zone"
+              [class.drag-active]="isDragOver()"
+              [class.uploading]="isUploading()"
+              (click)="triggerFileInput()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)">
+
+              <mat-icon class="drop-icon">{{ isUploading() ? 'hourglass_top' : 'cloud_upload' }}</mat-icon>
+              <p class="drop-primary">
+                {{ isUploading() ? 'Uploading…' : 'Drop files here or click to upload' }}
+              </p>
+              <p class="drop-secondary">
+                PDF · DOCX · XLSX · PNG · JPG · ZIP · TXT &nbsp;·&nbsp; Max 25 MB per file
+              </p>
+            </div>
+
+            <!-- Upload progress bar -->
+            <div class="upload-progress" *ngIf="isUploading()">
+              <mat-progress-bar
+                mode="determinate"
+                [value]="uploadProgress()"
+                class="progress-bar">
+              </mat-progress-bar>
+              <span class="progress-label">{{ uploadProgress() }}%</span>
+            </div>
+          </div>
+
+          <!-- FILE LIST -->
+          <div class="file-list" *ngIf="task().attachments?.length; else noEvidence">
+            <div class="file-row" *ngFor="let ev of task().attachments">
+              <!-- Icon -->
+              <div class="file-icon-wrap"
+                   [style.color]="getFileIconColor(ev.mimeType)">
+                <mat-icon>{{ getFileIcon(ev.mimeType) }}</mat-icon>
+              </div>
+
+              <!-- Info -->
+              <div class="file-info">
+                <span class="file-name" [matTooltip]="ev.originalName">{{ ev.originalName }}</span>
+                <div class="file-meta">
+                  <span>{{ formatFileSize(ev.size) }}</span>
+                  <span class="dot">·</span>
+                  <span>{{ ev.uploadedAt | date:'MMM d, yyyy' }}</span>
+                  <span class="dot" *ngIf="ev.uploadedBy?.name">·</span>
+                  <span *ngIf="ev.uploadedBy?.name" class="uploader">
+                    <mat-icon class="uploader-icon">person</mat-icon>
+                    {{ ev.uploadedBy.name }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="file-actions">
+                <a [href]="ev.fileUrl"
+                   target="_blank"
+                   mat-icon-button
+                   matTooltip="Download"
+                   class="action-btn download-btn">
+                  <mat-icon>download</mat-icon>
+                </a>
+                <button *ngIf="canDeleteEvidence(ev)"
+                        mat-icon-button
+                        matTooltip="Delete file"
+                        class="action-btn delete-btn"
+                        (click)="deleteEvidence(ev.id, ev.originalName)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <ng-template #noEvidence>
+            <div class="empty-evidence">
+              <mat-icon>folder_open</mat-icon>
+              <p>No evidence files uploaded yet</p>
+              <span *ngIf="canUpload()">Use the upload area above to add files</span>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+    </mat-tab>
+
+    <!-- ── TAB 2: COMMENTS ─────────────────────────── -->
+    <mat-tab [label]="'Comments (' + (task().comments?.length || 0) + ')'">
+      <div class="tab-content">
+
+        <div class="comments-list">
+          <div class="comment-item" *ngFor="let c of task().comments">
+            <div class="comment-avatar">{{ getInitials(c.author?.name) }}</div>
+            <div class="comment-bubble">
+              <div class="comment-header">
+                <strong class="comment-author">{{ c.author?.name || 'Unknown' }}</strong>
+                <span class="comment-date">{{ c.createdAt | date:'MMM d, yyyy · h:mm a' }}</span>
+              </div>
+              <p class="comment-text">{{ c.content }}</p>
+            </div>
+          </div>
+
+          <div class="empty-comments" *ngIf="!task().comments?.length">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <p>No comments yet. Start the conversation.</p>
+          </div>
+        </div>
+
+        <!-- Add comment -->
+        <form [formGroup]="commentForm" class="comment-form" (ngSubmit)="addComment()">
+          <mat-form-field appearance="outline" class="comment-field">
+            <mat-label>Write a comment…</mat-label>
+            <textarea matInput formControlName="content" rows="2"></textarea>
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit"
+                  [disabled]="commentForm.invalid" class="send-btn">
+            <mat-icon>send</mat-icon>
+          </button>
+        </form>
+
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</mat-dialog-content>
+
+<!-- ═══════════════════════════════════════════════════
+     ACTIONS
+════════════════════════════════════════════════════ -->
+<mat-dialog-actions class="dialog-actions">
+
+  <!-- Delete Task (managers only) — trigger or inline confirmation -->
+  <ng-container *ngIf="isManager()">
+    <ng-container *ngIf="!isConfirmingDelete(); else deleteConfirm">
+      <button mat-stroked-button
+              class="delete-trigger-btn"
+              [disabled]="isDeleting()"
+              (click)="confirmDelete()">
+        <mat-icon>delete_outline</mat-icon> Delete
+      </button>
+    </ng-container>
+    <ng-template #deleteConfirm>
+      <div class="delete-confirm-inline">
+        <p class="delete-confirm-msg">Delete this task?</p>
+        <button mat-flat-button class="confirm-yes-btn"
+                [disabled]="isDeleting()"
+                (click)="deleteTask()">
+          Yes, delete
+        </button>
+        <button mat-stroked-button class="confirm-no-btn"
+                [disabled]="isDeleting()"
+                (click)="cancelDelete()">
+          Cancel
+        </button>
+      </div>
+    </ng-template>
+  </ng-container>
+
+  <!-- Edit Task button (managers, assignee, or creator) -->
+  <button mat-stroked-button color="primary"
+          *ngIf="canEdit()"
+          (click)="openEditForm()">
+    <mat-icon>edit</mat-icon> Edit Task
+  </button>
+
+  <!-- todo → start -->
+  <ng-container *ngIf="task().status === 'todo'">
+    <button mat-flat-button color="primary"
+            [disabled]="isSubmitting()"
+            (click)="updateStatus('in-progress')">
+      <mat-icon>play_arrow</mat-icon> Start Work
+    </button>
+  </ng-container>
+
+  <!-- in-progress → submit / move back -->
+  <ng-container *ngIf="task().status === 'in-progress'">
+    <button mat-stroked-button color="warn"
+            [disabled]="isSubmitting()"
+            (click)="updateStatus('todo')">
+      Move to To Do
+    </button>
+    <button mat-flat-button color="primary"
+            [disabled]="isSubmitting()"
+            (click)="submitForReview()">
+      <mat-icon>rate_review</mat-icon> Submit for Review
+    </button>
+  </ng-container>
+
+  <!-- review → approve / reject (managers only) -->
+  <ng-container *ngIf="task().status === 'review'">
+    <ng-container *ngIf="isManager()">
+      <button mat-stroked-button color="warn"
+              [disabled]="isSubmitting()"
+              (click)="reviewTask(false)">
+        <mat-icon>cancel</mat-icon> Reject
+      </button>
+      <button mat-flat-button color="primary"
+              [disabled]="isSubmitting()"
+              (click)="reviewTask(true)">
+        <mat-icon>check_circle</mat-icon> Approve
+      </button>
+    </ng-container>
+    <p class="waiting-msg" *ngIf="!isManager()">
+      <mat-icon>hourglass_empty</mat-icon>
+      Waiting for coordinator review
+    </p>
+  </ng-container>
+
+  <span class="spacer"></span>
+  <button mat-button (click)="dialogRef.close()">Close</button>
+</mat-dialog-actions>

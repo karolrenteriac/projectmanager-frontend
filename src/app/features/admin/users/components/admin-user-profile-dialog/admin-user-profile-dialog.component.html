@@ -1,0 +1,179 @@
+<mat-dialog-content class="profile-dialog-content">
+
+  <!-- Loading state -->
+  <div *ngIf="loading()" class="profile-loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Loaded state -->
+  <ng-container *ngIf="!loading() && user() as u">
+
+    <!-- Header card -->
+    <div class="profile-header">
+      <div class="profile-avatar" [ngClass]="'role-avatar-' + u.role">
+        {{ getInitials(u.name) }}
+      </div>
+
+      <div class="profile-info">
+        <h2 class="profile-name">{{ u.name }}</h2>
+        <span class="profile-email">{{ u.email }}</span>
+
+        <div class="profile-chips">
+          <span class="role-badge" [ngClass]="'role-' + u.role">
+            {{ u.role | titlecase }}
+          </span>
+          <span class="status-chip" [class.active]="u.isActive" [class.inactive]="!u.isActive">
+            <span class="status-dot"></span>
+            {{ u.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+
+        <span class="profile-joined">
+          Joined {{ u.createdAt | date:'MMMM d, yyyy' }}
+        </span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Task stats row -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-value">{{ u.taskStats.total }}</span>
+        <span class="stat-label">Total Tasks</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value done">{{ u.taskStats.done }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value review">{{ u.taskStats.review }}</span>
+        <span class="stat-label">In Review</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value progress">{{ u.taskStats.inProgress }}</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value todo">{{ u.taskStats.todo }}</span>
+        <span class="stat-label">To Do</span>
+      </div>
+      <div class="stat-box" *ngIf="u.taskStats.blocked">
+        <span class="stat-value blocked">{{ u.taskStats.blocked }}</span>
+        <span class="stat-label">Blocked</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Projects tabs -->
+    <mat-tab-group class="projects-tabs" animationDuration="150ms">
+
+      <!-- Coordinated projects (coordinator role) -->
+      <mat-tab *ngIf="u.coordinatedProjects.length > 0">
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">supervised_user_circle</mat-icon>
+          Coordinating ({{ u.coordinatedProjects.length }})
+        </ng-template>
+        <div class="projects-list">
+          <div class="project-item" *ngFor="let p of u.coordinatedProjects">
+            <div class="project-item-left">
+              <mat-icon class="project-icon">folder_supervised</mat-icon>
+              <span class="project-title">{{ p.title }}</span>
+            </div>
+            <div class="project-item-right">
+              <span class="project-status-badge" [ngClass]="'ps-' + p.status">
+                {{ p.status | titlecase }}
+              </span>
+              <div class="progress-track" [matTooltip]="p.progress + '% complete'">
+                <div class="progress-fill" [style.width.%]="p.progress"></div>
+              </div>
+              <span class="progress-pct">{{ p.progress }}%</span>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Member projects -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">folder_shared</mat-icon>
+          Projects ({{ u.memberProjects.length }})
+        </ng-template>
+        <div class="projects-list" *ngIf="u.memberProjects.length; else noProjects">
+          <div class="project-item" *ngFor="let p of u.memberProjects">
+            <div class="project-item-left">
+              <mat-icon class="project-icon">folder</mat-icon>
+              <span class="project-title">{{ p.title }}</span>
+            </div>
+            <div class="project-item-right">
+              <span class="project-status-badge" [ngClass]="'ps-' + p.status">
+                {{ p.status | titlecase }}
+              </span>
+              <div class="progress-track" [matTooltip]="p.progress + '% complete'">
+                <div class="progress-fill" [style.width.%]="p.progress"></div>
+              </div>
+              <span class="progress-pct">{{ p.progress }}%</span>
+            </div>
+          </div>
+        </div>
+        <ng-template #noProjects>
+          <div class="no-projects">
+            <mat-icon>folder_off</mat-icon>
+            <p>Not assigned to any projects</p>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+    </mat-tab-group>
+
+    <mat-divider></mat-divider>
+
+    <!-- Actions -->
+    <div class="actions-section">
+
+      <!-- Role change -->
+      <div class="action-row">
+        <label class="action-label">
+          <mat-icon>manage_accounts</mat-icon>
+          Change Role
+        </label>
+        <div class="action-controls">
+          <mat-select [(ngModel)]="selectedRoleValue" class="role-select">
+            <mat-option *ngFor="let r of roles" [value]="r.value">
+              {{ r.label }}
+            </mat-option>
+          </mat-select>
+          <button mat-flat-button color="primary"
+                  [disabled]="savingRole() || selectedRole() === u.role"
+                  (click)="changeRole()">
+            <mat-progress-bar *ngIf="savingRole()" mode="indeterminate" class="btn-progress"></mat-progress-bar>
+            {{ savingRole() ? 'Saving…' : 'Apply' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Status toggle -->
+      <div class="action-row">
+        <label class="action-label">
+          <mat-icon>{{ u.isActive ? 'block' : 'check_circle' }}</mat-icon>
+          {{ u.isActive ? 'Deactivate User' : 'Activate User' }}
+        </label>
+        <button mat-stroked-button
+                [color]="u.isActive ? 'warn' : 'primary'"
+                [disabled]="savingStatus()"
+                (click)="toggleStatus()">
+          <mat-progress-bar *ngIf="savingStatus()" mode="indeterminate" class="btn-progress"></mat-progress-bar>
+          {{ savingStatus() ? 'Saving…' : (u.isActive ? 'Deactivate' : 'Activate') }}
+        </button>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

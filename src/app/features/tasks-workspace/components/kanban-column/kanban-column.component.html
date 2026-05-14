@@ -1,0 +1,24 @@
+<div class="column-container" [class]="columnClass">
+  <div class="column-header">
+    <div class="header-content">
+      <span class="status-dot" [class]="status"></span>
+      <h3 class="column-title">{{ title }}</h3>
+      <span class="task-count">{{ tasks.length }}</span>
+    </div>
+    <button class="add-task-btn" title="Add task">
+      <i class="material-icons">add</i>
+    </button>
+  </div>
+
+  <div class="task-list"
+       cdkDropList
+       [cdkDropListData]="tasks"
+       [id]="status"
+       (cdkDropListDropped)="drop($event)">
+    <app-task-card *ngFor="let task of tasks; trackBy: trackById" [task]="task" cdkDrag></app-task-card>
+    
+    <div class="empty-column" *ngIf="tasks.length === 0">
+      <p>No tasks yet</p>
+    </div>
+  </div>
+</div>

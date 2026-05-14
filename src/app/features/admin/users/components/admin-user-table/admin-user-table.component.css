@@ -1,0 +1,197 @@
+/* ── Loading ── */
+.loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  color: #666;
+  font-size: 14px;
+}
+
+.table-wrap { overflow-x: auto; }
+.table-wrap.dimmed { opacity: 0.5; pointer-events: none; }
+
+/* ── Table ── */
+.user-table {
+  width: 100%;
+  background: #fff;
+}
+
+.user-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.user-row:hover { background: #f5f7ff; }
+
+/* ── User identity cell ── */
+.user-cell { min-width: 240px; }
+
+.user-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Role-tinted avatars */
+.role-avatar-admin         { background: linear-gradient(135deg, #6a1b9a, #ab47bc); }
+.role-avatar-coordinator   { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+.role-avatar-principal     { background: linear-gradient(135deg, #00695c, #26a69a); }
+.role-avatar-co-researcher { background: linear-gradient(135deg, #e65100, #ff7043); }
+
+.identity-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f1923;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Role badges ── */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.role-admin         { background: #f3e5f5; color: #6a1b9a; }
+.role-coordinator   { background: #e3f2fd; color: #1565c0; }
+.role-principal     { background: #e0f2f1; color: #00695c; }
+.role-co-researcher { background: #fff3e0; color: #e65100; }
+
+/* ── Status chip ── */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-chip.active   { background: #e8f5e9; color: #2e7d32; }
+.status-chip.inactive { background: #fce4ec; color: #c62828; }
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.active   .status-dot { background: #2e7d32; }
+.inactive .status-dot { background: #c62828; }
+
+/* ── Stats ── */
+.stat-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #444;
+}
+
+.stat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #aaa;
+}
+
+.task-stats {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.task-stat { font-weight: 600; }
+.task-stat.total  { color: #444; }
+.task-stat.done   { color: #2e7d32; }
+.task-stat.review { color: #f57f17; }
+
+.sep { color: #ddd; }
+
+.date-cell {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.actions-cell { width: 48px; text-align: right; }
+
+/* ── Empty state ── */
+.empty-state {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 0;
+  color: #bbb;
+  text-align: center;
+}
+.empty-state mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  opacity: 0.5;
+}
+.empty-state p { margin: 0; font-size: 14px; color: #999; }
+
+/* ── Menu overrides ── */
+.warn-item { color: #d32f2f; }
+
+.role-opt-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.opt-admin         { background: #6a1b9a; }
+.opt-coordinator   { background: #1565c0; }
+.opt-principal     { background: #00695c; }
+.opt-co-researcher { background: #e65100; }
+
+.current-role-check {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-left: auto;
+  color: #1976d2;
+}

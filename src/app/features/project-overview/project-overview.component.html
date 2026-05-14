@@ -1,0 +1,277 @@
+<!-- ═══════════════════════════ LOADING SKELETON ═══════════════════════════ -->
+@if (loading()) {
+  <div class="overview-page">
+    <div class="skeleton-header">
+      <div class="skeleton-breadcrumb"></div>
+      <div class="skeleton-title"></div>
+      <div class="skeleton-subtitle"></div>
+      <div class="skeleton-actions"></div>
+    </div>
+    <div class="skeleton-stats-row">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton-stat-card"></div>
+      }
+    </div>
+    <div class="skeleton-sections-row">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="skeleton-section-card"></div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════ ERROR STATE ═══════════════════════════ -->
+@if (!loading() && error()) {
+  <div class="overview-page">
+    <div class="error-container">
+      <div class="error-card glass-card">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2>Something went wrong</h2>
+        <p>{{ error() }}</p>
+        <div class="error-actions">
+          <button mat-stroked-button (click)="backToProjects()">
+            <mat-icon>arrow_back</mat-icon> Back to Projects
+          </button>
+          <button mat-flat-button color="primary" (click)="loadProject(projectId()!)">
+            <mat-icon>refresh</mat-icon> Try Again
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════ MAIN CONTENT ═══════════════════════════ -->
+@if (!loading() && !error() && project()) {
+  <div class="overview-page fade-in">
+
+    <!-- ─── BREADCRUMB ─── -->
+    <nav class="breadcrumb">
+      <button mat-button class="breadcrumb-link" (click)="backToProjects()" id="btn-back-projects">
+        <mat-icon>grid_view</mat-icon>
+        Projects
+      </button>
+      <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+      <span class="breadcrumb-current">{{ project()?.title }}</span>
+    </nav>
+
+    <!-- ─── HERO HEADER ─── -->
+    <div class="project-hero glass-card">
+      <div class="hero-left">
+        <div class="hero-meta">
+          <div class="status-badge" [ngClass]="'status-' + project()?.status">
+            <mat-icon class="status-icon-sm">{{ getStatusIcon(project()?.status) }}</mat-icon>
+            {{ getStatusLabel(project()?.status) }}
+          </div>
+          <div class="days-indicator" [ngClass]="getDaysLeftClass()">
+            <mat-icon class="days-icon">schedule</mat-icon>
+            {{ getDaysLeft() }}
+          </div>
+        </div>
+
+        <h1 class="project-title">{{ project()?.title }}</h1>
+
+        @if (project()?.description) {
+          <p class="project-description">{{ project()?.description }}</p>
+        }
+
+        <!-- Progress -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Overall Progress</span>
+            <span class="progress-value">{{ project()?.progress || 0 }}%</span>
+          </div>
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              [style.width.%]="project()?.progress || 0"
+              [class.progress-high]="(project()?.progress || 0) >= 80"
+              [class.progress-mid]="(project()?.progress || 0) >= 40 && (project()?.progress || 0) < 80"
+              [class.progress-low]="(project()?.progress || 0) < 40"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Date range -->
+        <div class="date-range">
+          <div class="date-item">
+            <mat-icon class="date-icon">event</mat-icon>
+            <span class="date-label">Start</span>
+            <span class="date-value">{{ formatDate(project()?.startDate) }}</span>
+          </div>
+          <div class="date-sep">→</div>
+          <div class="date-item">
+            <mat-icon class="date-icon">event_busy</mat-icon>
+            <span class="date-label">End</span>
+            <span class="date-value">{{ formatDate(project()?.endDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <!-- Team Avatars -->
+        <div class="team-section">
+          <span class="team-label">Team Members</span>
+          <div class="avatar-stack">
+            @for (member of ((project()?.principalResearchers || []).concat(project()?.coResearchers || [])) | slice:0:6; track $index) {
+              <div
+                class="avatar-circle"
+                [style.background]="getMemberColor($index)"
+                [matTooltip]="member?.name || 'Team member'"
+              >
+                {{ getMemberInitials(member) }}
+              </div>
+            }
+            @if (teamMembers() > 6) {
+              <div class="avatar-circle avatar-more" [matTooltip]="'+' + (teamMembers() - 6) + ' more members'">
+                +{{ teamMembers() - 6 }}
+              </div>
+            }
+          </div>
+          @if (teamMembers() === 0) {
+            <span class="no-members">No members assigned</span>
+          }
+        </div>
+
+        <!-- Owner -->
+        @if (project()?.createdBy) {
+          <div class="owner-section">
+            <span class="owner-label">Owner</span>
+            <div class="owner-chip">
+              <div class="owner-avatar" [style.background]="getMemberColor(0)">
+                {{ getMemberInitials(project()?.createdBy) }}
+              </div>
+              <span class="owner-name">{{ project()?.createdBy?.name || 'Unknown' }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Action Buttons -->
+        <div class="hero-actions">
+          <button mat-flat-button class="btn-open-tasks" (click)="openTasks()" id="btn-open-tasks">
+            <mat-icon>task_alt</mat-icon>
+            Open Tasks
+          </button>
+          <button mat-stroked-button class="btn-action" (click)="editProject()" id="btn-edit-project" matTooltip="Edit Project">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-stroked-button class="btn-action" (click)="exportProject()" id="btn-export-project" matTooltip="Export Project">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button mat-stroked-button class="btn-action btn-danger" (click)="confirmDelete()" id="btn-delete-project" matTooltip="Delete Project">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── STATS ROW ─── -->
+    <div class="stats-row">
+      <!-- Total Tasks -->
+      <div class="stat-card glass-card">
+        <div class="stat-icon-wrap" style="background: rgba(99,102,241,0.12)">
+          <mat-icon style="color:#6366f1">assignment</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">
+            @if (tasksLoading()) { <span class="loading-dot">···</span> } @else { {{ totalTasks() }} }
+          </span>
+          <span class="stat-label">Total Tasks</span>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="stat-card glass-card">
+        <div class="stat-icon-wrap" style="background: rgba(16,185,129,0.12)">
+          <mat-icon style="color:#10b981">check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">
+            @if (tasksLoading()) { <span class="loading-dot">···</span> } @else { {{ completedTasks() }} }
+          </span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+
+      <!-- In Progress -->
+      <div class="stat-card glass-card">
+        <div class="stat-icon-wrap" style="background: rgba(59,130,246,0.12)">
+          <mat-icon style="color:#3b82f6">play_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">
+            @if (tasksLoading()) { <span class="loading-dot">···</span> } @else { {{ inProgressTasks() }} }
+          </span>
+          <span class="stat-label">In Progress</span>
+        </div>
+      </div>
+
+      <!-- Pending Review -->
+      <div class="stat-card glass-card">
+        <div class="stat-icon-wrap" style="background: rgba(245,158,11,0.12)">
+          <mat-icon style="color:#f59e0b">rate_review</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">
+            @if (tasksLoading()) { <span class="loading-dot">···</span> } @else { {{ reviewTasks() }} }
+          </span>
+          <span class="stat-label">Pending Review</span>
+        </div>
+      </div>
+
+      <!-- Team Members -->
+      <div class="stat-card glass-card">
+        <div class="stat-icon-wrap" style="background: rgba(236,72,153,0.12)">
+          <mat-icon style="color:#ec4899">group</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">{{ teamMembers() }}</span>
+          <span class="stat-label">Team Members</span>
+        </div>
+      </div>
+
+      <!-- Completion Rate -->
+      <div class="stat-card glass-card stat-card--rate">
+        <div class="stat-icon-wrap" style="background: rgba(139,92,246,0.12)">
+          <mat-icon style="color:#8b5cf6">donut_large</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">
+            @if (tasksLoading()) { <span class="loading-dot">···</span> } @else { {{ completionRate() }}% }
+          </span>
+          <span class="stat-label">Completion Rate</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION CARDS ─── -->
+    <div class="sections-area">
+      <h2 class="sections-title">Project Sections</h2>
+      <div class="sections-grid">
+        @for (section of sections(); track section.id) {
+          <button
+            class="section-card glass-card"
+            [id]="'btn-section-' + section.id"
+            (click)="navigateToSection(section)"
+            [style.--section-color]="section.color"
+          >
+            <div class="section-icon-wrap" [style.background]="section.color + '1a'">
+              <mat-icon [style.color]="section.color">{{ section.icon }}</mat-icon>
+            </div>
+            <div class="section-info">
+              <div class="section-header-row">
+                <span class="section-name">{{ section.label }}</span>
+                @if (section.badge) {
+                  <span class="section-badge" [style.background]="section.color">{{ section.badge }}</span>
+                }
+              </div>
+              <span class="section-desc">{{ section.description }}</span>
+            </div>
+            <mat-icon class="section-arrow">arrow_forward_ios</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+  </div>
+}

@@ -1,0 +1,52 @@
+<div class="tasks-selector-page fade-in">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Task Management</h1>
+      <p>Select a project to manage its task board</p>
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Search projects...</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange($event)" placeholder="Search by title...">
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading projects...</p>
+    </div>
+  }
+
+  @if (!isLoading && projects.length === 0) {
+    <div class="empty-state">
+      <mat-icon>folder_open</mat-icon>
+      <h3>No projects found</h3>
+      <p>Create a project first to start managing tasks.</p>
+    </div>
+  }
+
+  <div class="project-list" *ngIf="!isLoading && projects.length > 0">
+    @for (project of projects; track project.id) {
+      <div class="project-item-card" matRipple (click)="selectProject(project)">
+        <div class="project-icon">
+          <mat-icon>rocket_launch</mat-icon>
+        </div>
+        <div class="project-details">
+          <h3>{{ project.title }}</h3>
+          <div class="project-meta">
+            <span class="task-count" *ngIf="project.progress !== undefined">
+              {{ project.progress }}% Complete
+            </span>
+            <span class="status-dot" [ngClass]="'status-' + project.status"></span>
+            <span class="status-text">{{ project.status }}</span>
+          </div>
+        </div>
+        <mat-icon class="arrow-icon">chevron_right</mat-icon>
+      </div>
+    }
+  </div>
+</div>

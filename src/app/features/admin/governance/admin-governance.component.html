@@ -1,0 +1,229 @@
+<div class="page-shell">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-title-block">
+      <h1 class="page-title">Project Governance</h1>
+      <span class="page-subtitle">Strategic supervision of all projects across the organization</span>
+    </div>
+    <button mat-icon-button (click)="load()" matTooltip="Refresh" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="stats-row" *ngIf="!loading()">
+    <div class="stat-card">
+      <span class="stat-value">{{ summaryStats().total }}</span>
+      <span class="stat-label">Total Projects</span>
+    </div>
+    <div class="stat-card health-healthy">
+      <mat-icon class="stat-icon">check_circle</mat-icon>
+      <span class="stat-value">{{ summaryStats().healthy }}</span>
+      <span class="stat-label">Healthy</span>
+    </div>
+    <div class="stat-card health-delayed">
+      <mat-icon class="stat-icon">schedule</mat-icon>
+      <span class="stat-value">{{ summaryStats().delayed }}</span>
+      <span class="stat-label">Delayed</span>
+    </div>
+    <div class="stat-card health-blocked">
+      <mat-icon class="stat-icon">hourglass_empty</mat-icon>
+      <span class="stat-value">{{ summaryStats().blocked }}</span>
+      <span class="stat-label">Blocked</span>
+    </div>
+    <div class="stat-card health-critical">
+      <mat-icon class="stat-icon">report_problem</mat-icon>
+      <span class="stat-value">{{ summaryStats().critical }}</span>
+      <span class="stat-label">Critical</span>
+    </div>
+    <div class="stat-card overdue-card">
+      <mat-icon class="stat-icon">warning</mat-icon>
+      <span class="stat-value">{{ summaryStats().overdueTasks }}</span>
+      <span class="stat-label">Overdue Tasks</span>
+    </div>
+  </div>
+
+  <!-- Delayed/Critical alert banner -->
+  <div
+    class="alert-banner"
+    *ngIf="!loading() && (summaryStats().critical > 0 || summaryStats().delayed > 0)"
+  >
+    <mat-icon>warning_amber</mat-icon>
+    <span>
+      <strong>{{ summaryStats().critical + summaryStats().delayed }}</strong>
+      project(s) require attention —
+      <span *ngIf="summaryStats().critical > 0">
+        <strong>{{ summaryStats().critical }} critical</strong>
+      </span>
+      <span *ngIf="summaryStats().critical > 0 && summaryStats().delayed > 0">, </span>
+      <span *ngIf="summaryStats().delayed > 0">
+        <strong>{{ summaryStats().delayed }} delayed</strong>
+      </span>.
+    </span>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search projects</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearch($event)"
+          placeholder="Title or description..."
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-select">
+        <mat-label>Health</mat-label>
+        <mat-select [ngModel]="filterHealth()" (ngModelChange)="filterHealth.set($event)">
+          <mat-option *ngFor="let o of healthOptions" [value]="o.value">{{ o.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-select">
+        <mat-label>Status</mat-label>
+        <mat-select [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
+          <mat-option *ngFor="let o of statusOptions" [value]="o.value">{{ o.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-select" *ngIf="coordinatorOptions().length > 0">
+        <mat-label>Coordinator</mat-label>
+        <mat-select [ngModel]="filterCoordinator()" (ngModelChange)="filterCoordinator.set($event)">
+          <mat-option value="">All Coordinators</mat-option>
+          <mat-option *ngFor="let c of coordinatorOptions()" [value]="c.id">{{ c.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <span class="results-count" *ngIf="!loading()">
+      {{ filteredProjects().length }} of {{ projects().length }} projects
+    </span>
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner-ring"></div>
+    <span>Loading governance data...</span>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading() && filteredProjects().length === 0">
+    <mat-icon>{{ loadError() ? 'error_outline' : 'folder_open' }}</mat-icon>
+    <h3>{{ loadError() ? 'Unable to load governance data' : 'No projects found' }}</h3>
+    <p *ngIf="loadError()">Governance data could not be retrieved. Check backend connectivity or organization configuration.</p>
+    <p *ngIf="!loadError() && projects().length === 0">No projects exist in the organization yet.</p>
+    <p *ngIf="!loadError() && projects().length > 0">Try adjusting your filters.</p>
+    <button mat-stroked-button *ngIf="loadError()" (click)="load()" style="margin-top: 12px">
+      <mat-icon>refresh</mat-icon> Retry
+    </button>
+  </div>
+
+  <!-- Projects grid -->
+  <div class="projects-grid" *ngIf="!loading() && filteredProjects().length > 0">
+    <div
+      class="project-card"
+      *ngFor="let p of filteredProjects(); trackBy: trackById"
+      [ngClass]="'card-' + p.health"
+    >
+      <!-- Card top bar -->
+      <div class="card-topbar">
+        <span class="health-badge" [ngClass]="'health-' + p.health">
+          <mat-icon class="badge-icon">
+            {{ p.health === 'healthy' ? 'check_circle' :
+               p.health === 'delayed' ? 'schedule' :
+               p.health === 'blocked' ? 'hourglass_empty' : 'report_problem' }}
+          </mat-icon>
+          {{ healthLabel(p.health) }}
+        </span>
+        <span class="status-pill" [ngClass]="'status-' + p.status">{{ p.status }}</span>
+      </div>
+
+      <!-- Project title -->
+      <div class="card-title-row">
+        <h3 class="card-title">{{ p.title }}</h3>
+      </div>
+
+      <!-- Coordinator -->
+      <div class="card-coordinator" *ngIf="p.coordinator">
+        <mat-icon class="coord-icon">person</mat-icon>
+        <span class="coord-name">{{ p.coordinator.name }}</span>
+      </div>
+      <div class="card-coordinator no-coord" *ngIf="!p.coordinator">
+        <mat-icon class="coord-icon">person_off</mat-icon>
+        <span class="no-coord-label">No coordinator</span>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="card-progress">
+        <div class="progress-labels">
+          <span>Progress</span>
+          <span class="progress-value">{{ p.progress }}%</span>
+        </div>
+        <div class="progress-track">
+          <div
+            class="progress-fill"
+            [style.width.%]="p.progress"
+            [ngClass]="'fill-' + p.health"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Task counters -->
+      <div class="card-metrics">
+        <div class="metric-item">
+          <span class="metric-value">{{ p.totalTasks }}</span>
+          <span class="metric-label">Tasks</span>
+        </div>
+        <div class="metric-item done">
+          <span class="metric-value">{{ p.completedTasks }}</span>
+          <span class="metric-label">Done</span>
+        </div>
+        <div class="metric-item review" [ngClass]="{ 'metric-alert': p.reviewTasks > 0 }">
+          <span class="metric-value">{{ p.reviewTasks }}</span>
+          <span class="metric-label">Review</span>
+        </div>
+        <div class="metric-item overdue" [ngClass]="{ 'metric-danger': p.overdueTasks > 0 }">
+          <span class="metric-value">{{ p.overdueTasks }}</span>
+          <span class="metric-label">Overdue</span>
+        </div>
+        <div class="metric-item workers">
+          <span class="metric-value">{{ p.activeWorkers }}</span>
+          <span class="metric-label">Active</span>
+        </div>
+      </div>
+
+      <!-- Last activity -->
+      <div class="card-activity">
+        <mat-icon class="activity-icon">update</mat-icon>
+        <span>{{ relativeTime(p.lastActivity) }}</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-actions">
+        <button
+          mat-stroked-button
+          class="action-btn"
+          (click)="openReport(p)"
+          matTooltip="Open executive report"
+        >
+          <mat-icon>analytics</mat-icon>
+          Report
+        </button>
+        <button
+          mat-stroked-button
+          class="action-btn assign-btn"
+          (click)="openAssignCoordinator(p)"
+          matTooltip="Assign or change coordinator"
+        >
+          <mat-icon>swap_horiz</mat-icon>
+          Coordinator
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

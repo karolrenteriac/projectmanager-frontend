@@ -32,12 +32,21 @@ export class SidebarComponent implements OnInit {
   ngOnInit() {
     const user = this.authService.getUser();
 
-    // 🔥 SOLO ADMIN VE INVITATIONS
     if (user && user.role === 'admin') {
       this.menuItems.splice(1, 0, {
         label: 'Invitations',
         icon: 'mail',
         route: '/invitations'
+      });
+      this.menuItems.push({
+        label: 'Project Governance',
+        icon: 'account_tree',
+        route: '/admin/project-governance'
+      });
+      this.menuItems.push({
+        label: 'User Management',
+        icon: 'manage_accounts',
+        route: '/admin/users'
       });
     }
   }

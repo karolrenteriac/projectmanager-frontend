@@ -1,0 +1,139 @@
+/* ── Shell ── */
+.page-shell {
+  padding: 28px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Header ── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f1923;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #888;
+}
+
+/* ── Stats cards ── */
+.stats-cards {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px 28px;
+  min-width: 100px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+.stat-card.active-card .stat-card-value  { color: #2e7d32; }
+.stat-card.inactive-card .stat-card-value { color: #c62828; }
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f1923;
+}
+
+.stat-card-label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+/* ── Role breakdown ── */
+.role-cards {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.role-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-radius: 10px;
+  padding: 14px 20px;
+  min-width: 90px;
+  border: 1.5px solid transparent;
+}
+
+.rc-admin         { background: #f3e5f5; border-color: #ce93d8; }
+.rc-coordinator   { background: #e3f2fd; border-color: #90caf9; }
+.rc-principal     { background: #e0f2f1; border-color: #80cbc4; }
+.rc-co-researcher { background: #fff3e0; border-color: #ffcc80; }
+
+.role-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+.rc-admin         .role-stat-value { color: #6a1b9a; }
+.rc-coordinator   .role-stat-value { color: #1565c0; }
+.rc-principal     .role-stat-value { color: #00695c; }
+.rc-co-researcher .role-stat-value { color: #e65100; }
+
+.role-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.rc-admin         .role-stat-label { color: #6a1b9a; }
+.rc-coordinator   .role-stat-label { color: #1565c0; }
+.rc-principal     .role-stat-label { color: #00695c; }
+.rc-co-researcher .role-stat-label { color: #e65100; }
+
+.role-stat-active {
+  font-size: 11px;
+  color: #aaa;
+}
+
+/* ── Filter & table cards ── */
+.filters-card,
+.table-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+.table-card { padding: 0; overflow: hidden; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .page-shell { padding: 16px; }
+  .stats-cards { gap: 10px; }
+  .stat-card { padding: 16px 18px; }
+}

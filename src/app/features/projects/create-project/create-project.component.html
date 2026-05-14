@@ -1,98 +1,255 @@
 <div class="create-project-container">
   <mat-card class="create-project-card">
+
     <mat-card-header>
-      <mat-card-title>{{ isEditMode ? 'Edit Project' : 'Create New Project' }}</mat-card-title>
-      <mat-card-subtitle>{{ isEditMode ? 'Update your project details' : 'Set up your project details and team' }}</mat-card-subtitle>
+      <div class="card-header-content">
+        <div class="card-header-icon">
+          <mat-icon>{{ isEditMode ? 'edit_note' : 'add_circle_outline' }}</mat-icon>
+        </div>
+        <div>
+          <mat-card-title>{{ isEditMode ? 'Edit Project' : 'Create New Project' }}</mat-card-title>
+          <mat-card-subtitle>{{ isEditMode ? 'Update project details and team structure' : 'Define project details and assemble your research team' }}</mat-card-subtitle>
+        </div>
+      </div>
     </mat-card-header>
 
-    <!-- Loading existing project data -->
-    <div class="loading-project" *ngIf="isLoading">
+    <!-- Loading project data -->
+    <div class="loading-project" *ngIf="isLoading && isEditMode">
       <mat-spinner diameter="36"></mat-spinner>
       <p>Loading project data...</p>
     </div>
 
-    <mat-card-content *ngIf="!isLoading">
+    <mat-card-content *ngIf="!isLoading || !isEditMode">
       <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
-        <div class="form-grid">
-          <!-- Title -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Project Title</mat-label>
-            <input matInput formControlName="title" placeholder="e.g. Q2 Marketing Campaign" required>
-            <mat-error *ngIf="projectForm.get('title')?.hasError('required')">
-              Title is required
-            </mat-error>
-          </mat-form-field>
 
-          <!-- Description -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="description" rows="3" placeholder="Briefly describe the project goals..."></textarea>
-          </mat-form-field>
-
-          <!-- Objectives -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Objectives</mat-label>
-            <textarea matInput formControlName="objectives" rows="2" placeholder="List the key objectives..."></textarea>
-          </mat-form-field>
-
-          <!-- Dates Row -->
-          <div class="row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Start Date</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-              <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>End Date</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-              <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-            </mat-form-field>
+        <!-- ── SECTION: Project Details ── -->
+        <div class="form-section">
+          <div class="section-label">
+            <mat-icon>description</mat-icon>
+            <span>Project Details</span>
           </div>
 
-          <!-- Status & Progress Row -->
-          <div class="row" *ngIf="isEditMode">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Status</mat-label>
-              <mat-select formControlName="status">
-                <mat-option value="planning">Planning</mat-option>
-                <mat-option value="in-progress">In Progress</mat-option>
-                <mat-option value="completed">Completed</mat-option>
-              </mat-select>
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Project Title</mat-label>
+              <input matInput formControlName="title" placeholder="e.g. Climate Impact Study 2025">
+              <mat-error *ngIf="projectForm.get('title')?.hasError('required')">Title is required</mat-error>
+              <mat-error *ngIf="projectForm.get('title')?.hasError('minlength')">Minimum 3 characters</mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Progress (%)</mat-label>
-              <input matInput type="number" formControlName="progress" min="0" max="100">
-              <mat-error *ngIf="projectForm.get('progress')?.hasError('min') || projectForm.get('progress')?.hasError('max')">
-                Progress must be between 0 and 100
-              </mat-error>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" rows="3" placeholder="Briefly describe the project goals and scope..."></textarea>
             </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Objectives</mat-label>
+              <textarea matInput formControlName="objectives" rows="2" placeholder="List the key research objectives..."></textarea>
+            </mat-form-field>
+
+            <div class="row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+                <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="row" *ngIf="isEditMode">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option value="planning">Planning</mat-option>
+                  <mat-option value="in-progress">In Progress</mat-option>
+                  <mat-option value="completed">Completed</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Progress (%)</mat-label>
+                <input matInput type="number" formControlName="progress" min="0" max="100">
+                <mat-error *ngIf="projectForm.get('progress')?.hasError('min') || projectForm.get('progress')?.hasError('max')">
+                  Must be between 0 and 100
+                </mat-error>
+              </mat-form-field>
+            </div>
           </div>
-
-          <!-- Members (Multi-select) -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Team Members</mat-label>
-            <mat-select formControlName="members" multiple>
-              <mat-option *ngFor="let user of users" [value]="user._id">
-                {{ user.name }} ({{ user.email }})
-              </mat-option>
-            </mat-select>
-            <mat-hint *ngIf="users.length > 0">Select collaborators for this project</mat-hint>
-            <mat-hint *ngIf="users.length === 0">No users found to add as members</mat-hint>
-          </mat-form-field>
         </div>
 
+        <mat-divider class="section-divider"></mat-divider>
+
+        <!-- ── SECTION: Team Structure ── -->
+        <div class="form-section">
+          <div class="section-label">
+            <mat-icon>groups</mat-icon>
+            <span>Team Structure</span>
+          </div>
+
+          <!-- Loading users -->
+          <div class="users-loading" *ngIf="usersLoading">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Loading available users...</span>
+          </div>
+
+          <div class="form-grid" *ngIf="!usersLoading">
+
+            <!-- 1. Project Coordinator (single, required) -->
+            <div class="team-field">
+              <div class="team-field-header">
+                <div class="role-badge coordinator-badge">
+                  <mat-icon>manage_accounts</mat-icon>
+                  Project Coordinator
+                </div>
+                <span class="role-desc">Responsible for operational management</span>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Coordinator</mat-label>
+                <mat-select formControlName="projectCoordinator">
+                  <mat-option
+                    *ngFor="let u of coordinators"
+                    [value]="u._id || u.id"
+                  >
+                    <div class="user-option">
+                      <div class="user-avatar-sm coordinator-avatar">{{ getUserInitial(u) }}</div>
+                      <div class="user-option-info">
+                        <span class="user-option-name">{{ u.name }}</span>
+                        <span class="user-option-email">{{ u.email }}</span>
+                      </div>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="coordinators.length === 0" class="warn-hint">
+                  No users with coordinator role found
+                </mat-hint>
+                <mat-error *ngIf="projectForm.get('projectCoordinator')?.hasError('required')">
+                  A coordinator is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- 2. Principal Researchers (multi, required, min 1) -->
+            <div class="team-field">
+              <div class="team-field-header">
+                <div class="role-badge principal-badge">
+                  <mat-icon>science</mat-icon>
+                  Principal Researchers
+                </div>
+                <span class="role-desc">Lead researchers — at least one required</span>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Principal Researchers</mat-label>
+                <mat-select formControlName="principalResearchers" multiple>
+                  <mat-option
+                    *ngFor="let u of principals"
+                    [value]="u._id || u.id"
+                  >
+                    <div class="user-option">
+                      <div class="user-avatar-sm principal-avatar">{{ getUserInitial(u) }}</div>
+                      <div class="user-option-info">
+                        <span class="user-option-name">{{ u.name }}</span>
+                        <span class="user-option-email">{{ u.email }}</span>
+                      </div>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="principals.length === 0" class="warn-hint">
+                  No users with principal role found
+                </mat-hint>
+                <mat-error *ngIf="projectForm.get('principalResearchers')?.hasError('required')">
+                  At least one principal researcher is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Selected principal chips -->
+              <div class="selected-chips" *ngIf="(projectForm.get('principalResearchers')?.value || []).length > 0">
+                <span class="chips-label">Selected:</span>
+                <div class="chips-row">
+                  <span
+                    class="user-chip principal-chip"
+                    *ngFor="let id of projectForm.get('principalResearchers')?.value"
+                  >
+                    <mat-icon class="chip-icon">person</mat-icon>
+                    {{ getPrincipalName(id) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Co-Researchers (multi, optional) -->
+            <div class="team-field">
+              <div class="team-field-header">
+                <div class="role-badge coresearcher-badge">
+                  <mat-icon>people</mat-icon>
+                  Co-Researchers
+                  <span class="optional-tag">Optional</span>
+                </div>
+                <span class="role-desc">Supporting researchers for the project</span>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Co-Researchers</mat-label>
+                <mat-select formControlName="coResearchers" multiple>
+                  <mat-option
+                    *ngFor="let u of coResearcherUsers"
+                    [value]="u._id || u.id"
+                  >
+                    <div class="user-option">
+                      <div class="user-avatar-sm coresearcher-avatar">{{ getUserInitial(u) }}</div>
+                      <div class="user-option-info">
+                        <span class="user-option-name">{{ u.name }}</span>
+                        <span class="user-option-email">{{ u.email }}</span>
+                      </div>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="coResearcherUsers.length === 0" class="warn-hint">
+                  No users with co-researcher role found
+                </mat-hint>
+              </mat-form-field>
+
+              <!-- Selected co-researcher chips -->
+              <div class="selected-chips" *ngIf="(projectForm.get('coResearchers')?.value || []).length > 0">
+                <span class="chips-label">Selected:</span>
+                <div class="chips-row">
+                  <span
+                    class="user-chip coresearcher-chip"
+                    *ngFor="let id of projectForm.get('coResearchers')?.value"
+                  >
+                    <mat-icon class="chip-icon">person</mat-icon>
+                    {{ getCoResearcherName(id) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Actions -->
         <div class="form-actions">
-          <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
-          <button mat-flat-button color="primary" type="submit" [disabled]="projectForm.invalid || isLoading">
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="projectForm.invalid || isLoading"
+          >
             <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
             <span *ngIf="!isLoading">{{ isEditMode ? 'Update Project' : 'Create Project' }}</span>
           </button>
         </div>
+
       </form>
     </mat-card-content>
+
   </mat-card>
 </div>

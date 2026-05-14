@@ -1,0 +1,32 @@
+<mat-card class="task-card" [class]="getPriorityClass(task.priority)" (click)="openDetails()">
+  <mat-card-header>
+    <div mat-card-avatar class="user-avatar" [title]="task.assignedTo?.name || 'Unassigned'">
+      {{ getInitials(task.assignedTo?.name) }}
+    </div>
+    <mat-card-title class="task-title">{{ task.title }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <p class="task-description">{{ task.description }}</p>
+    
+    <div class="task-meta">
+      <span class="due-date" *ngIf="task.dueDate">
+        <mat-icon>calendar_today</mat-icon>
+        {{ task.dueDate | date:'MMM d' }}
+      </span>
+      
+      <div class="counters">
+        <span class="count-item">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          {{ task.commentsCount || 0 }}
+        </span>
+        <span class="count-item">
+          <mat-icon>attach_file</mat-icon>
+          {{ task.attachmentsCount || 0 }}
+        </span>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <div class="priority-indicator" [class]="task.priority"></div>
+</mat-card>

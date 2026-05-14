@@ -1,0 +1,119 @@
+<div class="workspace-container" *ngIf="!loading(); else loadingTpl">
+
+  <!-- ─── BREADCRUMB ─── -->
+  <nav class="ws-breadcrumb">
+    <button mat-button class="ws-breadcrumb-link" (click)="backToOverview()" id="btn-back-overview" matTooltip="Back to Project Overview">
+      <mat-icon>arrow_back</mat-icon>
+      {{ project()?.title || 'Project' }}
+    </button>
+    <mat-icon class="ws-breadcrumb-sep">chevron_right</mat-icon>
+    <span class="ws-breadcrumb-current">
+      <mat-icon class="ws-breadcrumb-icon">task_alt</mat-icon>
+      Tasks
+    </span>
+  </nav>
+
+  <!-- Project Header -->
+  <header class="project-header" *ngIf="project()">
+    <div class="header-main">
+      <div class="title-section">
+        <h1 class="project-title">{{ project()?.title }}</h1>
+        <p class="project-desc">{{ project()?.description }}</p>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-item">
+          <span class="stat-label">Tasks</span>
+          <span class="stat-value">{{ tasks().length }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Completed</span>
+          <span class="stat-value">{{ doneTasks().length }}</span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="project()?.progress || 0"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="members-list">
+        <div class="member-avatar"
+          *ngFor="let member of ((project()?.principalResearchers || []).concat(project()?.coResearchers || [])) | slice:0:5"
+          [title]="member.name">
+          {{ getInitials(member.name) }}
+        </div>
+        <div class="member-more"
+          *ngIf="((project()?.principalResearchers?.length || 0) + (project()?.coResearchers?.length || 0)) > 5">
+          +{{ ((project()?.principalResearchers?.length || 0) + (project()?.coResearchers?.length || 0)) - 5 }}
+        </div>
+      </div>
+
+      <div class="actions-buttons">
+        <button mat-stroked-button color="primary">
+          <mat-icon>filter_list</mat-icon> Filter
+        </button>
+        <button mat-flat-button color="primary" (click)="openCreateTaskDialog()">
+          <mat-icon>add</mat-icon> New Task
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters Bar -->
+  <div class="filters-bar" *ngIf="!error()">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Search tasks..." [formControl]="searchControl">
+    </mat-form-field>
+
+    <div class="filter-dropdowns">
+      <mat-form-field appearance="outline">
+        <mat-label>Assignee</mat-label>
+        <mat-select [formControl]="assigneeFilter">
+          <mat-option value="">All</mat-option>
+          <mat-option
+            *ngFor="let member of (project()?.principalResearchers || []).concat(project()?.coResearchers || [])"
+            [value]="member._id">
+            {{ member.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select [formControl]="priorityFilter">
+          <mat-option value="">All</mat-option>
+          <mat-option value="low">Low</mat-option>
+          <mat-option value="medium">Medium</mat-option>
+          <mat-option value="high">High</mat-option>
+          <mat-option value="urgent">Urgent</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Kanban Board -->
+  <main class="kanban-board" cdkDropListGroup *ngIf="!error(); else errorTpl">
+    <app-kanban-column title="To Do" status="todo" [tasks]="todoTasks()" (taskDropped)="onTaskDropped($event)"></app-kanban-column>
+    <app-kanban-column title="In Progress" status="in-progress" [tasks]="inProgressTasks()" (taskDropped)="onTaskDropped($event)"></app-kanban-column>
+    <app-kanban-column title="Review" status="review" [tasks]="reviewTasks()" (taskDropped)="onTaskDropped($event)"></app-kanban-column>
+    <app-kanban-column title="Done" status="done" [tasks]="doneTasks()" (taskDropped)="onTaskDropped($event)"></app-kanban-column>
+  </main>
+
+  <ng-template #errorTpl>
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <h2>{{ error() }}</h2>
+      <button mat-button color="primary" (click)="loadData(projectId()!)">Try Again</button>
+    </div>
+  </ng-template>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading workspace...</p>
+  </div>
+</ng-template>

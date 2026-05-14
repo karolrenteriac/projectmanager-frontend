@@ -46,10 +46,14 @@
 
             <button mat-flat-button color="primary" type="submit" [disabled]="invitationForm.invalid || isSending" class="submit-btn full-width">
               @if (isSending) {
-                <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
-                Sending...
+                <ng-container>
+                  <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                  Sending...
+                </ng-container>
               } @else {
-                <mat-icon>send</mat-icon> Send Invitation
+                <ng-container>
+                  <mat-icon>send</mat-icon> Send Invitation
+                </ng-container>
               }
             </button>
           </form>

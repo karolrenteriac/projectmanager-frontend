@@ -1,0 +1,72 @@
+<div class="kanban-board" cdkDropListGroup>
+  @for (column of columns; track column.id) {
+    <div class="kanban-column">
+      <div class="column-header">
+        <div class="column-title">
+          <mat-icon [style.color]="column.color">{{ column.icon }}</mat-icon>
+          <span>{{ column.title }}</span>
+          <span class="task-count">{{ column.tasks.length }}</span>
+        </div>
+        <button mat-icon-button (click)="createTask(column.status)" matTooltip="Add task">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <div
+        class="task-list"
+        [id]="column.id"
+        cdkDropList
+        [cdkDropListData]="column.tasks"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (task of column.tasks; track task.id) {
+          <div class="task-card" cdkDrag>
+            <div class="task-card-header">
+              <span class="task-id">TSK-{{ task.id | slice:-4 }}</span>
+              <button mat-icon-button [matMenuTriggerFor]="taskMenu" class="btn-task-more">
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #taskMenu="matMenu">
+                <button mat-menu-item (click)="editTask(task)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+                <button mat-menu-item (click)="deleteTask(task)" class="text-danger">
+                  <mat-icon color="warn">delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+            
+            <h4 class="task-title">{{ task.title }}</h4>
+            <p class="task-desc" *ngIf="task.description">
+              {{ task.description | slice:0:60 }}{{ task.description.length > 60 ? '...' : '' }}
+            </p>
+
+            <div class="task-card-footer">
+              <div class="task-tags">
+                <span class="priority-tag medium">Medium</span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [matTooltip]="task.assignedTo.name">
+                {{ getMemberInitials(task.assignedTo) }}
+              </div>
+              <div class="task-unassigned" *ngIf="!task.assignedTo" matTooltip="Unassigned">
+                <mat-icon>person_outline</mat-icon>
+              </div>
+            </div>
+
+            <!-- Placeholder while dragging -->
+            <div class="custom-placeholder" *cdkDragPlaceholder></div>
+          </div>
+        }
+
+        @if (column.tasks.length === 0) {
+          <div class="column-empty">
+            <mat-icon>inbox</mat-icon>
+            <p>No tasks</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

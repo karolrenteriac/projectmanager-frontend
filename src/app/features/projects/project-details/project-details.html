@@ -1,0 +1,155 @@
+<div class="project-details-page fade-in">
+  @if (isLoading && !project) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Loading project workspace...</p>
+    </div>
+  }
+
+  @if (project) {
+    <!-- ═══════════════════════════════════════════ HEADER ═══════════════════════════════════════════ -->
+    <header class="workspace-header">
+      <div class="header-main">
+        <button mat-icon-button (click)="goBack()" class="btn-back" matTooltip="Back to projects">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="project-info">
+          <div class="title-row">
+            <h1>{{ project.title }}</h1>
+            <span class="status-badge" [ngClass]="'status-' + project.status">
+              {{ getStatusLabel(project.status) }}
+            </span>
+          </div>
+          <p class="description">{{ project.description || 'No description provided' }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="editProject()">
+          <mat-icon>edit</mat-icon>
+          Edit Project
+        </button>
+        <button mat-flat-button color="primary">
+          <mat-icon>share</mat-icon>
+          Invite
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════ STATS ═══════════════════════════════════════════ -->
+    <section class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon"><mat-icon>assignment</mat-icon></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.total }}</span>
+          <span class="stat-label">Total Tasks</span>
+        </div>
+      </div>
+      <div class="stat-card todo">
+        <div class="stat-icon"><mat-icon>list</mat-icon></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.todo }}</span>
+          <span class="stat-label">Todo</span>
+        </div>
+      </div>
+      <div class="stat-card in-progress">
+        <div class="stat-icon"><mat-icon>trending_up</mat-icon></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.inProgress }}</span>
+          <span class="stat-label">In Progress</span>
+        </div>
+      </div>
+      <div class="stat-card review">
+        <div class="stat-icon"><mat-icon>rate_review</mat-icon></div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.review }}</span>
+          <span class="stat-label">In Review</span>
+        </div>
+      </div>
+      <div class="stat-card done">
+        <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-content">
+          <span class="stat-value text-success">{{ stats.done }}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+      <div class="stat-card progress">
+        <div class="stat-progress-circle">
+          <svg viewBox="0 0 36 36" class="circular-chart">
+            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path class="circle" [attr.stroke-dasharray]="stats.percent + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <text x="18" y="20.35" class="percentage">{{ stats.percent }}%</text>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Progress</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ CONTENT ═══════════════════════════════════════════ -->
+    <main class="workspace-content">
+      <mat-tab-group class="custom-tabs" animationDuration="200ms">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>view_kanban</mat-icon>
+            <span>Kanban Board</span>
+          </ng-template>
+          <div class="tab-pane">
+            <app-kanban [projectId]="project.id || project._id || ''" [tasks]="tasks" [members]="(project.principalResearchers || []).concat(project.coResearchers || [])" (updated)="onTaskUpdated()"></app-kanban>
+          </div>
+        </mat-tab>
+        
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>group</mat-icon>
+            <span>Team Members</span>
+          </ng-template>
+          <div class="tab-pane members-pane">
+            <div class="members-header">
+              <h2>Project Members</h2>
+              <button mat-stroked-button color="primary">Manage Team</button>
+            </div>
+            <div class="members-list">
+              @for (member of (project.principalResearchers || []).concat(project.coResearchers || []); track $index) {
+                <div class="member-item">
+                  <div class="member-avatar">{{ getMemberInitials(member) }}</div>
+                  <div class="member-info">
+                    <span class="member-name">{{ member?.name }}</span>
+                    <span class="member-email">{{ member?.email }}</span>
+                  </div>
+                  <span class="member-role">{{ member?.role }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>info</mat-icon>
+            <span>Project Info</span>
+          </ng-template>
+          <div class="tab-pane info-pane">
+            <div class="info-card">
+              <h3>Objectives</h3>
+              <p>{{ project.objectives || 'No objectives defined for this project.' }}</p>
+              
+              <mat-divider></mat-divider>
+              
+              <div class="info-dates">
+                <div class="date-item">
+                  <span class="label">Start Date</span>
+                  <span class="value">{{ (project.startDate | date:'mediumDate') || '—' }}</span>
+                </div>
+                <div class="date-item">
+                  <span class="label">End Date</span>
+                  <span class="value">{{ (project.endDate | date:'mediumDate') || '—' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </main>
+  }
+</div>

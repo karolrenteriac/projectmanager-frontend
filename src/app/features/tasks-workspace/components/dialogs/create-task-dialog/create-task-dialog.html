@@ -1,0 +1,310 @@
+<!-- ═══════════════════════════════════════════════════
+     DIALOG HEADER
+════════════════════════════════════════════════════ -->
+<div class="dialog-header">
+  <div class="header-left">
+    <div class="header-icon-wrap" [class.edit-mode]="isEditMode">
+      <mat-icon>{{ isEditMode ? 'edit' : 'add_task' }}</mat-icon>
+    </div>
+    <div class="header-text">
+      <h2 mat-dialog-title class="dialog-title">{{ dialogTitle }}</h2>
+      <p class="dialog-subtitle">{{ dialogSubtitle }}</p>
+    </div>
+  </div>
+  <button mat-icon-button class="close-btn" matTooltip="Close" (click)="onCancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DIALOG CONTENT
+════════════════════════════════════════════════════ -->
+<mat-dialog-content class="dialog-body">
+  <form [formGroup]="taskForm" class="task-form" autocomplete="off">
+
+    <!-- ── SECTION 1: TASK DETAILS ─────────────────────── -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">edit_note</mat-icon>
+        <span class="section-label">Task Details</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Task Title</mat-label>
+        <input matInput formControlName="title"
+               placeholder="E.g., Analyze initial dataset"
+               maxlength="100">
+        <mat-icon matPrefix>title</mat-icon>
+        <mat-hint align="end">{{ taskForm.get('title')?.value?.length || 0 }}/100</mat-hint>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('minlength')">Minimum 3 characters</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"
+                  rows="3"
+                  placeholder="Describe the task — requirements, context, acceptance criteria…"
+                  maxlength="2000"></textarea>
+        <mat-icon matPrefix>notes</mat-icon>
+        <mat-hint align="end">{{ taskForm.get('description')?.value?.length || 0 }}/2000</mat-hint>
+      </mat-form-field>
+    </section>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    <!-- ── SECTION 2: ASSIGNMENT & TIMELINE ────────────── -->
+    <section class="form-section assignment-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">assignment_ind</mat-icon>
+        <span class="section-label">Assignment &amp; Timeline</span>
+      </div>
+
+      <!-- 2×2 RESPONSIVE GRID -->
+      <div class="assignment-grid">
+
+        <!-- CELL 1 · ASSIGNEE ─────────────────────────── -->
+        <div class="grid-cell">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Assign To</mat-label>
+            <mat-select formControlName="assignedTo">
+
+              <!-- Selected-state trigger: avatar + name -->
+              <mat-select-trigger *ngIf="getSelectedMember() as sel">
+                <span class="select-trigger">
+                  <span class="trigger-avatar">{{ getMemberInitials(sel.name) }}</span>
+                  <span class="trigger-name">{{ sel.name }}</span>
+                </span>
+              </mat-select-trigger>
+
+              <!-- Unassigned (clear) -->
+              <mat-option [value]="null" class="opt-unassigned">
+                <mat-icon>person_off</mat-icon>
+                Unassigned
+              </mat-option>
+
+              <!-- Loading state -->
+              <mat-option *ngIf="loadingMembers" disabled class="opt-loading">
+                <mat-spinner diameter="16"></mat-spinner>
+                Loading members…
+              </mat-option>
+
+              <!-- Member list -->
+              <ng-container *ngIf="!loadingMembers">
+                <mat-option *ngFor="let m of projectMembers" [value]="m.id">
+                  <div class="member-opt">
+                    <span class="member-avatar">{{ getMemberInitials(m.name) }}</span>
+                    <div class="member-meta">
+                      <span class="member-name">{{ m.name }}</span>
+                      <span class="member-role">{{ getRoleDisplay(m.role) }}</span>
+                    </div>
+                  </div>
+                </mat-option>
+
+                <mat-option *ngIf="projectMembers.length === 0" disabled>
+                  <em>No available project members</em>
+                </mat-option>
+              </ng-container>
+            </mat-select>
+
+            <mat-icon matPrefix>person_outline</mat-icon>
+          </mat-form-field>
+
+          <!-- Selected member chip -->
+          <div class="assignee-chip" *ngIf="getSelectedMember() as sel">
+            <span class="chip-avatar">{{ getMemberInitials(sel.name) }}</span>
+            <div class="chip-body">
+              <span class="chip-name">{{ sel.name }}</span>
+              <span class="chip-role">{{ getRoleDisplay(sel.role) }}</span>
+            </div>
+            <button type="button" mat-icon-button class="chip-clear"
+                    matTooltip="Unassign"
+                    (click)="taskForm.get('assignedTo')?.setValue(null)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- CELL 2 · DUE DATE ─────────────────────────── -->
+        <div class="grid-cell">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Due Date</mat-label>
+            <input matInput
+                   [matDatepicker]="duePicker"
+                   formControlName="dueDate"
+                   [min]="minDate"
+                   placeholder="Select a date"
+                   (dateChange)="onDateChange($event.value)"
+                   (click)="duePicker.open()"
+                   readonly>
+            <mat-icon matPrefix>event_note</mat-icon>
+            <mat-datepicker-toggle matIconSuffix [for]="duePicker"></mat-datepicker-toggle>
+            <mat-datepicker #duePicker></mat-datepicker>
+            <mat-error *ngIf="taskForm.get('dueDate')?.hasError('pastDate')">
+              Date cannot be in the past
+            </mat-error>
+            <mat-error *ngIf="taskForm.get('dueDate')?.hasError('matDatepickerMin')">
+              Must be today or a future date
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Selected date chip -->
+          <div class="date-chip" *ngIf="taskForm.get('dueDate')?.value">
+            <mat-icon>event_available</mat-icon>
+            <span>Due {{ taskForm.get('dueDate')?.value | date: 'MMM dd, yyyy' }}</span>
+            <button type="button" mat-icon-button class="chip-clear"
+                    matTooltip="Clear date"
+                    (click)="taskForm.get('dueDate')?.setValue(null)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- CELL 3 · PRIORITY ─────────────────────────── -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option value="low">
+              <span class="priority-opt"><span class="p-dot low"></span>Low</span>
+            </mat-option>
+            <mat-option value="medium">
+              <span class="priority-opt"><span class="p-dot medium"></span>Medium</span>
+            </mat-option>
+            <mat-option value="high">
+              <span class="priority-opt"><span class="p-dot high"></span>High</span>
+            </mat-option>
+            <mat-option value="urgent">
+              <span class="priority-opt"><span class="p-dot urgent"></span>Urgent</span>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>flag</mat-icon>
+        </mat-form-field>
+
+        <!-- CELL 4 · ESTIMATED HOURS ─────────────────── -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Estimated Hours</mat-label>
+          <input matInput
+                 type="number"
+                 formControlName="estimatedHours"
+                 placeholder="e.g. 8"
+                 min="1"
+                 max="1000">
+          <mat-icon matPrefix>schedule</mat-icon>
+          <span matSuffix class="hours-suffix">hrs</span>
+          <mat-hint>Estimated effort to complete this task</mat-hint>
+          <mat-error *ngIf="taskForm.get('estimatedHours')?.hasError('min')">Minimum 1 hour</mat-error>
+          <mat-error *ngIf="taskForm.get('estimatedHours')?.hasError('max')">Maximum 1000 hours</mat-error>
+        </mat-form-field>
+
+      </div><!-- /assignment-grid -->
+
+      <!-- No members banner -->
+      <div class="info-banner info-warning"
+           *ngIf="!loadingMembers && projectMembers.length === 0 && !membersLoadError">
+        <mat-icon>group_off</mat-icon>
+        <span>This project has no members yet. The task will be created unassigned.</span>
+      </div>
+
+      <!-- Load error banner -->
+      <div class="info-banner info-error" *ngIf="membersLoadError">
+        <mat-icon>error_outline</mat-icon>
+        <span>Could not load project members.</span>
+        <button type="button" mat-stroked-button color="warn"
+                class="retry-btn" (click)="retryLoadMembers()">
+          <mat-icon>refresh</mat-icon> Retry
+        </button>
+      </div>
+
+    </section>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    <!-- ── SECTION 3: CHECKLIST ────────────────────────── -->
+    <section class="form-section">
+      <div class="section-header">
+        <mat-icon class="section-icon">checklist</mat-icon>
+        <span class="section-label">Checklist</span>
+        <span class="section-count" *ngIf="checklistArray.length > 0">
+          {{ completedChecklistCount }}/{{ checklistArray.length }}
+        </span>
+        <span class="section-hint">Break the task into subtasks · Enter adds next item</span>
+      </div>
+
+      <!-- Progress bar (shown when items exist in edit mode) -->
+      <div class="checklist-progress-wrap"
+           *ngIf="checklistArray.length > 0">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="checklistProgressPercent"
+          class="checklist-progress-bar">
+        </mat-progress-bar>
+        <span class="checklist-progress-pct">{{ checklistProgressPercent }}%</span>
+      </div>
+
+      <div class="checklist-drop-zone"
+           cdkDropList
+           (cdkDropListDropped)="onChecklistDropped($event)"
+           [cdkDropListData]="checklistArray.controls">
+
+        <div *ngFor="let item of checklistArray.controls; let i = index"
+             [formGroup]="$any(item)"
+             class="checklist-row"
+             [class.row-done]="item.get('completed')?.value"
+             cdkDrag>
+
+          <div class="drag-handle" cdkDragHandle matTooltip="Drag to reorder">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+
+          <mat-checkbox formControlName="completed" class="row-check"
+                        color="primary"></mat-checkbox>
+
+          <mat-form-field appearance="outline" class="row-field">
+            <input matInput
+                   #checklistInput
+                   formControlName="title"
+                   placeholder="Subtask description…"
+                   [class.line-through]="item.get('completed')?.value"
+                   (keydown)="onChecklistKeydown($event, i)">
+          </mat-form-field>
+
+          <button type="button" mat-icon-button class="row-delete"
+                  matTooltip="Remove"
+                  (click)="removeChecklistItem(i)">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+
+        <div *ngIf="checklistArray.length === 0" class="checklist-empty">
+          <mat-icon>playlist_add_check</mat-icon>
+          <p>No subtasks yet — click below or press Enter in a new item</p>
+        </div>
+      </div>
+
+      <button type="button" mat-stroked-button color="primary"
+              class="add-subtask-btn" (click)="addChecklistItem()">
+        <mat-icon>add</mat-icon>
+        Add Subtask
+      </button>
+    </section>
+
+  </form>
+</mat-dialog-content>
+
+<!-- ═══════════════════════════════════════════════════
+     DIALOG ACTIONS
+════════════════════════════════════════════════════ -->
+<mat-dialog-actions class="dialog-actions">
+  <button mat-button class="btn-cancel" (click)="onCancel()">
+    Cancel
+  </button>
+
+  <button mat-flat-button color="primary"
+          class="btn-submit"
+          [disabled]="taskForm.invalid || isSubmitting"
+          (click)="onSubmit()">
+    <mat-spinner *ngIf="isSubmitting" diameter="18" class="btn-spinner"></mat-spinner>
+    <mat-icon *ngIf="!isSubmitting">{{ submitIcon }}</mat-icon>
+    {{ submitLabel }}
+  </button>
+</mat-dialog-actions>

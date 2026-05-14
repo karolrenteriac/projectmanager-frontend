@@ -1,0 +1,57 @@
+<div class="page-shell">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-title-block">
+      <h1 class="page-title">User Management</h1>
+      <span class="page-subtitle">Manage roles, access, and status for all organization members</span>
+    </div>
+  </div>
+
+  <!-- Org stats cards -->
+  <div class="stats-cards" *ngIf="stats() as s">
+    <div class="stat-card">
+      <span class="stat-card-value">{{ s.totalUsers }}</span>
+      <span class="stat-card-label">Total Users</span>
+    </div>
+    <div class="stat-card active-card">
+      <span class="stat-card-value">{{ s.activeUsers }}</span>
+      <span class="stat-card-label">Active</span>
+    </div>
+    <div class="stat-card inactive-card">
+      <span class="stat-card-value">{{ s.inactiveUsers }}</span>
+      <span class="stat-card-label">Inactive</span>
+    </div>
+
+    <div class="role-cards">
+      <div class="role-stat-card" *ngFor="let r of roleGroups()"
+           [ngClass]="'rc-' + r.role">
+        <span class="role-stat-value">{{ r.total }}</span>
+        <span class="role-stat-label">{{ r.role | titlecase }}</span>
+        <span class="role-stat-active">{{ r.active }} active</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <app-admin-user-filters (filtersChange)="onFiltersChange($event)">
+    </app-admin-user-filters>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <app-admin-user-table
+      [users]="users()"
+      [totalCount]="total()"
+      [loading]="loading()"
+      [pageIndex]="page()"
+      [pageSize]="limit()"
+      (pageChange)="onPageChange($event)"
+      (roleChange)="onRoleChange($event)"
+      (statusChange)="onStatusChange($event)"
+      (viewProfile)="onViewProfile($event)">
+    </app-admin-user-table>
+  </div>
+
+</div>

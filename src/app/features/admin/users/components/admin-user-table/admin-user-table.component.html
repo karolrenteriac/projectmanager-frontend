@@ -1,0 +1,164 @@
+<!-- Loading overlay -->
+<div *ngIf="loading" class="loading-row">
+  <mat-spinner diameter="32"></mat-spinner>
+  <span>Loading users…</span>
+</div>
+
+<!-- Table -->
+<div class="table-wrap" [class.dimmed]="loading">
+  <table mat-table [dataSource]="users" class="user-table">
+
+    <!-- Avatar + Name column -->
+    <ng-container matColumnDef="avatar">
+      <th mat-header-cell *matHeaderCellDef>User</th>
+      <td mat-cell *matCellDef="let user" class="user-cell">
+        <div class="user-identity">
+          <span class="avatar" [class]="'role-avatar-' + user.role">
+            {{ getInitials(user.name) }}
+          </span>
+          <div class="identity-text">
+            <span class="user-name">{{ user.name }}</span>
+            <span class="user-email">{{ user.email }}</span>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Name (hidden — used for accessibility width) -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let user"></td>
+    </ng-container>
+
+    <!-- Role -->
+    <ng-container matColumnDef="role">
+      <th mat-header-cell *matHeaderCellDef>Role</th>
+      <td mat-cell *matCellDef="let user">
+        <span class="role-badge" [ngClass]="'role-' + user.role">
+          {{ user.role | titlecase }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Status -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let user">
+        <span class="status-chip" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+          <span class="status-dot"></span>
+          {{ user.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Projects -->
+    <ng-container matColumnDef="projects">
+      <th mat-header-cell *matHeaderCellDef>Projects</th>
+      <td mat-cell *matCellDef="let user">
+        <div class="stat-cell">
+          <mat-icon class="stat-icon">folder</mat-icon>
+          <span>{{ user.assignedProjectsCount }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Tasks -->
+    <ng-container matColumnDef="tasks">
+      <th mat-header-cell *matHeaderCellDef>Tasks</th>
+      <td mat-cell *matCellDef="let user">
+        <div class="task-stats">
+          <span class="task-stat total"
+                matTooltip="Total assigned">{{ user.assignedTasksCount }}</span>
+          <span class="sep">·</span>
+          <span class="task-stat done"
+                matTooltip="Completed">{{ user.completedTasksCount }}</span>
+          <span class="sep">·</span>
+          <span class="task-stat review"
+                matTooltip="In review">{{ user.reviewTasksCount }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Created At -->
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef>Joined</th>
+      <td mat-cell *matCellDef="let user" class="date-cell">
+        {{ user.createdAt | date:'MMM d, yyyy' }}
+      </td>
+    </ng-container>
+
+    <!-- Actions -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let user" class="actions-cell">
+        <button mat-icon-button
+                [matMenuTriggerFor]="actionsMenu"
+                [matMenuTriggerData]="{ user: user }"
+                matTooltip="Actions">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+        class="user-row"
+        (click)="onViewProfile(row.id)"></tr>
+
+    <!-- Empty state -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">
+        <mat-icon>person_search</mat-icon>
+        <p>No users match the current filters</p>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- Shared action menu (uses matMenuTriggerData) -->
+<mat-menu #actionsMenu="matMenu">
+  <ng-template matMenuContent let-user="user">
+    <button mat-menu-item (click)="onViewProfile(user.id); $event.stopPropagation()">
+      <mat-icon>person</mat-icon>
+      <span>View Profile</span>
+    </button>
+
+    <button mat-menu-item [matMenuTriggerFor]="roleMenu" [matMenuTriggerData]="{ user: user }"
+            (click)="$event.stopPropagation()">
+      <mat-icon>manage_accounts</mat-icon>
+      <span>Change Role</span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item
+            [class.warn-item]="user.isActive"
+            (click)="onToggleStatus(user); $event.stopPropagation()">
+      <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
+      <span>{{ user.isActive ? 'Deactivate' : 'Activate' }}</span>
+    </button>
+  </ng-template>
+</mat-menu>
+
+<!-- Nested role picker -->
+<mat-menu #roleMenu="matMenu">
+  <ng-template matMenuContent let-user="user">
+    <button mat-menu-item *ngFor="let r of availableRoles"
+            [disabled]="user.role === r.value"
+            (click)="onRoleChange(user, r.value); $event.stopPropagation()">
+      <span class="role-opt-dot" [ngClass]="'opt-' + r.value"></span>
+      {{ r.label }}
+      <mat-icon *ngIf="user.role === r.value" class="current-role-check">check</mat-icon>
+    </button>
+  </ng-template>
+</mat-menu>
+
+<!-- Paginator -->
+<mat-paginator
+  [length]="totalCount"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[10, 20, 50]"
+  showFirstLastButtons
+  (page)="onPage($event)">
+</mat-paginator>
